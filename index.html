@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美倫株式会社 仮払金出納帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F3EE; --surface:#FFFFFF; --ink:#20242B; --sub:#6B7280;
+    --line:#E4E2DA; --line-strong:#D2CFC4;
+    --ai:#2A4D69; --ai-soft:#EAF0F4;
+    --in:#2F6B4F; --out:#B23A2E; --gold:#A8884E;
+    --warn-bg:#FBEDE9;
+    --shadow:0 1px 2px rgba(32,36,43,.05), 0 8px 24px rgba(32,36,43,.06);
+    --serif:'Shippori Mincho','Yu Mincho','Hiragino Mincho ProN',serif;
+    --sans:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--paper);
+    line-height:1.6; -webkit-font-smoothing:antialiased; font-size:14px;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px;}
+  .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum";}
+
+  /* Header */
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:22px;}
+  .brand .eyebrow{font-size:11px;letter-spacing:.32em;color:var(--ai);font-weight:700;text-transform:uppercase;margin-bottom:2px;}
+  .brand h1{font-family:var(--serif);font-weight:700;font-size:26px;margin:0;letter-spacing:.04em;}
+  .brand .co{font-size:12px;color:var(--sub);margin-top:3px;}
+  .brand .co input{font:inherit;color:var(--sub);border:none;background:transparent;border-bottom:1px dashed var(--line-strong);padding:1px 2px;width:14em;}
+  .brand .co input:focus{outline:none;border-bottom-color:var(--ai);color:var(--ink);}
+  .share-pill{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--sub);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;}
+  .share-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--in);box-shadow:0 0 0 3px rgba(47,107,79,.15);}
+  .share-pill.local .dot{background:var(--out);box-shadow:0 0 0 3px rgba(178,58,46,.18);}
+  .share-pill.syncing .dot{background:var(--ai);box-shadow:0 0 0 3px rgba(42,77,105,.18);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .refresh-btn{font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);background:var(--surface);color:var(--ai);padding:7px 14px;border-radius:9px;cursor:pointer;transition:.15s;white-space:nowrap;}
+  .refresh-btn:hover{background:var(--ai);color:#fff;border-color:var(--ai);}
+
+  /* Layout */
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start;}
+  @media(max-width:880px){.grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);}
+  .card .hd{padding:13px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+  .card .hd h2{font-family:var(--serif);font-size:15px;font-weight:600;margin:0;letter-spacing:.05em;}
+  .card .bd{padding:18px;}
+
+  /* Balance tray (signature) */
+  .tray{position:relative;overflow:hidden;}
+  .tray .eyebrow{font-size:10.5px;letter-spacing:.3em;color:var(--ai);font-weight:700;}
+  .tray .bal{font-family:var(--serif);font-weight:700;font-size:46px;line-height:1.05;margin:6px 0 2px;letter-spacing:.01em;}
+  .tray .bal .yen{font-size:24px;margin-right:4px;color:var(--sub);}
+  .tray.low .bal{color:var(--out);}
+  .tray .meta{font-size:12px;color:var(--sub);}
+  .fill-track{height:10px;border-radius:6px;background:#EDEBE3;margin:16px 0 6px;overflow:hidden;border:1px solid var(--line);}
+  .fill-bar{height:100%;background:linear-gradient(90deg,#33597a,#2A4D69);border-radius:6px;transition:width .5s ease;}
+  .tray.low .fill-bar{background:linear-gradient(90deg,#c5483b,#B23A2E);}
+  .fill-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);}
+  .alert{margin-top:14px;background:var(--warn-bg);border:1px solid #E7C3BB;color:#8f2a20;border-radius:10px;padding:10px 12px;font-size:12.5px;display:none;}
+  .alert strong{font-weight:700;}
+  .tray.low .alert{display:block;}
+
+  /* Form */
+  .seg{display:flex;background:#EFEEE7;border-radius:10px;padding:3px;margin-bottom:14px;}
+  .seg button{flex:1;border:none;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--sub);padding:8px;border-radius:8px;cursor:pointer;transition:.15s;}
+  .seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06);}
+  .seg button.on.out{color:var(--out);} .seg button.on.in{color:var(--in);}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:11.5px;color:var(--sub);font-weight:600;margin-bottom:4px;letter-spacing:.02em;}
+  .field input,.field select,.field textarea{width:100%;font:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);color:var(--ink);}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ai);box-shadow:0 0 0 3px var(--ai-soft);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .amt-input{position:relative;}
+  .amt-input span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:14px;}
+  .amt-input input{padding-left:24px;font-variant-numeric:tabular-nums;font-weight:600;}
+  .acct-auto{font-size:11px;color:var(--ai);margin-top:4px;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font:inherit;font-weight:600;font-size:13.5px;border:none;border-radius:10px;padding:11px 16px;cursor:pointer;transition:.15s;}
+  .btn-primary{background:var(--ink);color:#fff;width:100%;}
+  .btn-primary:hover{background:#000;}
+  .btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line-strong);}
+  .btn-ghost:hover{border-color:var(--ai);color:var(--ai);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  /* Filters */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  .filters select,.filters input{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);}
+  .filters .search{flex:1;min-width:150px;}
+
+  .view-seg{display:flex;gap:4px;background:#EFEEE7;border-radius:9px;padding:3px;}
+  .mode-seg{display:flex;gap:3px;background:#EFEEE7;border-radius:9px;padding:3px;}
+  .mode-seg button{border:none;background:transparent;font:inherit;font-size:12px;font-weight:600;color:var(--sub);padding:5px 12px;border-radius:7px;cursor:pointer;}
+  .mode-seg button.on{background:var(--surface);color:var(--ai);box-shadow:0 1px 2px rgba(0,0,0,.06);}
+  .view-badge{font-size:11px;font-weight:600;color:#fff;background:var(--ai);border-radius:6px;padding:2px 9px;vertical-align:middle;margin-left:6px;}
+  .viewonly{display:none;}
+  body.view .viewonly{display:inline-flex;}
+  body.view .editonly{display:none !important;}
+  body.view #inputCard{display:none !important;}
+  .view-seg button{border:none;background:transparent;font:inherit;font-size:12.5px;font-weight:600;color:var(--sub);padding:6px 14px;border-radius:7px;cursor:pointer;}
+  .view-seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06);}
+  tr.locked{background:#FBFAF6;} tr.locked:hover{background:#F6F5EF;}
+  .lk{color:var(--gold);font-size:12px;}
+  .mbtn{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;padding:4px 9px;cursor:pointer;color:var(--ink);white-space:nowrap;}
+  .mbtn:hover{border-color:var(--ai);color:var(--ai);}
+  .mbtn.close{border-color:#cfe0ea;background:var(--ai-soft);color:var(--ai);}
+  .mbtn.close:hover{background:var(--ai);color:#fff;}
+  .mbtn.reopen{color:var(--sub);} .mbtn.reopen:hover{border-color:var(--gold);color:var(--gold);}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:6px;}
+  .badge.done{background:#EAF1EC;color:var(--in);} .badge.open{background:#F0EFE8;color:var(--sub);}
+  td.opening{color:var(--sub);font-variant-numeric:tabular-nums;}
+  tr.mtotal td{border-top:1.5px solid var(--line-strong);font-weight:700;background:#FAF9F4;}
+
+  /* Table */
+  .tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px;}
+  thead th{background:#FAF9F5;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--sub);padding:10px 12px;border-bottom:1.5px solid var(--line-strong);white-space:nowrap;}
+  thead th.num{text-align:right;}
+  tbody td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FBFAF6;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  td.in{color:var(--in);font-weight:600;} td.out{color:var(--out);font-weight:600;}
+  td.bal{font-weight:700;font-variant-numeric:tabular-nums;}
+  .tag{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:6px;background:#F0EFE8;color:var(--sub);white-space:nowrap;}
+  .tag.k{background:var(--ai-soft);color:var(--ai);}
+  .acct{font-size:11px;color:var(--sub);margin-top:2px;}
+  .rcpt{font-size:10px;color:var(--gold);margin-top:2px;}
+  .del{border:none;background:transparent;color:var(--sub);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:6px;}
+  .del:hover{background:var(--warn-bg);color:var(--out);}
+  .carry td{background:#FAF9F4;font-style:italic;color:var(--sub);}
+  .empty{text-align:center;color:var(--sub);padding:40px 20px;font-size:13px;}
+
+  /* Summary chips */
+  .sum{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .sum .chip{background:#FAF9F5;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:12px;}
+  .sum .chip b{font-variant-numeric:tabular-nums;display:block;font-size:15px;margin-top:2px;color:var(--ink);}
+  .sum .chip span{color:var(--sub);font-size:11px;}
+
+  /* Export / tools */
+  .tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:520px){.tools-grid{grid-template-columns:1fr;}}
+  .tools-grid .btn-ghost{justify-content:flex-start;text-align:left;}
+  .tools-grid .btn-ghost small{color:var(--sub);font-weight:400;}
+  .note{font-size:11.5px;color:var(--sub);margin-top:12px;line-height:1.6;}
+  details.imp summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--ai);padding:6px 0;}
+  details.imp textarea{width:100%;min-height:90px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;margin-top:8px;}
+  .imp-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .settings-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+  .preset-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:13px;}
+  .preset-row .preset-label{font-size:11.5px;color:var(--sub);}
+  .preset-row button{font:inherit;font-size:12px;font-weight:600;color:var(--ai);background:var(--ai-soft);border:1px solid #cfe0ea;border-radius:999px;padding:5px 14px;cursor:pointer;transition:.15s;}
+  .preset-row button:hover{background:var(--ai);color:#fff;border-color:var(--ai);}
+  .preset-row button.on{background:var(--ai);color:#fff;border-color:var(--ai);}
+  .settings-row .field{margin-bottom:0;flex:1;min-width:120px;}
+  .danger{color:var(--out);border-color:#E7C3BB;}
+  .danger:hover{background:var(--warn-bg);border-color:var(--out);}
+  .sect-title{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--sub);margin:26px 0 10px;display:flex;align-items:center;gap:10px;}
+  .sect-title::after{content:"";flex:1;height:1px;background:var(--line);}
+  .banner{display:none;background:#FFF6E5;border:1px solid #EAD9A8;color:#7a5d1e;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:18px;}
+  footer{margin-top:30px;text-align:center;font-size:11px;color:var(--sub);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow">Petty Cash Ledger</div>
+      <h1><span id="appTitleText">美倫株式会社 仮払金出納帳</span> <span class="view-badge viewonly">閲覧モード</span></h1>
+      <div class="co">小口現金管理 ／ Petty Cash Ledger</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="mode-seg" id="modeSeg">
+        <button data-mode="edit" class="on">編集</button>
+        <button data-mode="view">閲覧</button>
+      </div>
+      <button id="refreshBtn" class="refresh-btn" title="クラウドから最新を取り込む">↻ 更新</button>
+      <div id="sharePill" class="share-pill" title="クリックで更新"><span class="dot"></span><span id="shareTxt">接続中…</span></div>
+    </div>
+  </header>
+
+  <div id="banner" class="banner"></div>
+
+  <div class="grid">
+
+    <!-- LEFT: balance + form -->
+    <div>
+      <div class="card tray" id="tray" style="margin-bottom:22px;">
+        <div class="bd">
+          <div class="eyebrow">残高 ／ BALANCE</div>
+          <div class="bal"><span class="yen">¥</span><span id="balNum" class="tnum">0</span></div>
+          <div class="meta">仮払金 <span id="floatTxt">¥100,000</span> に対する手元残高</div>
+          <div class="fill-track"><div class="fill-bar" id="fillBar" style="width:0%"></div></div>
+          <div class="fill-legend"><span id="pctTxt">0%</span><span id="floatLegend">上限 ¥100,000</span></div>
+          <div class="alert" id="alert">残高が少なくなっています。<strong id="replTxt">¥0</strong> の補充で上限に戻ります。</div>
+        </div>
+      </div>
+
+      <div class="card" id="inputCard">
+        <div class="hd"><h2>記帳する</h2></div>
+        <div class="bd">
+          <div class="seg" id="typeSeg">
+            <button data-type="expense" class="on out">出金（支払い）</button>
+            <button data-type="replenish" class="in">補充（受領）</button>
+          </div>
+
+          <div class="row2">
+            <div class="field"><label>発生日（取引日）</label><input type="date" id="fAdate"></div>
+            <div class="field"><label>支払日（現金が動いた日）</label><input type="date" id="fPdate"></div>
+          </div>
+          <div class="field amt-input"><label>金額</label><span>¥</span><input type="number" id="fAmount" min="0" step="1" placeholder="0" inputmode="numeric"></div>
+
+          <div class="field" id="catWrap">
+            <label>区分</label>
+            <select id="fCat">
+              <option>文房具・事務用品</option>
+              <option>電気代</option>
+              <option>ガス代</option>
+              <option>水道代</option>
+              <option>通信費</option>
+              <option>交通費</option>
+              <option>その他</option>
+            </select>
+            <div class="acct-auto" id="acctAuto">勘定科目：消耗品費</div>
+          </div>
+
+          <div class="field"><label>支払先 ／ 受領元</label><input type="text" id="fPayee" placeholder="例）○○文具店"></div>
+          <div class="field"><label>摘要（但し書き）</label><input type="text" id="fNote" placeholder="例）コピー用紙・封筒"></div>
+
+          <div class="row2" id="taxRow">
+            <div class="field"><label>税区分</label><select id="fTax"><option value="10">課税10%</option><option value="8">軽減8%</option><option value="0">対象外</option></select></div>
+            <div class="field"><label>登録番号（任意）</label><input type="text" id="fInv" placeholder="T+13桁"></div>
+          </div>
+          <div class="field"><label>領収書ID（任意・読み取りアプリ連携）</label><input type="text" id="fRcpt" placeholder="例）RCPT-0042"></div>
+
+          <button class="btn btn-primary" id="addBtn">＋ 記帳する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: ledger -->
+    <div>
+      <div class="card">
+        <div class="hd">
+          <div class="view-seg" id="viewSeg">
+            <button data-view="detail" class="on">明細</button>
+            <button data-view="monthly">月別サマリー</button>
+          </div>
+          <span class="tag" id="countTag">0 件</span>
+        </div>
+        <div class="bd">
+          <div id="detailView">
+            <div class="filters">
+              <select id="filterMonth"><option value="">全期間</option></select>
+              <select id="filterCat"><option value="">全区分</option></select>
+              <input type="text" class="search" id="filterText" placeholder="支払先・摘要で検索">
+            </div>
+
+            <div class="tbl-scroll">
+              <table>
+                <thead><tr>
+                  <th>支払日</th><th>区分</th><th>支払先・摘要</th>
+                  <th class="num">入金</th><th class="num">出金</th><th class="num">残高</th><th></th>
+                </tr></thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+
+            <div class="sum" id="sumChips"></div>
+          </div>
+
+          <div id="monthlyView" style="display:none">
+            <div class="tbl-scroll">
+              <table>
+                <thead><tr>
+                  <th>年月</th><th class="num">前月繰越</th><th class="num">入金</th><th class="num">出金</th>
+                  <th class="num">月末残高</th><th class="num">件数</th><th>状態</th><th></th>
+                </tr></thead>
+                <tbody id="mbody"></tbody>
+              </table>
+            </div>
+            <p class="note">各月を「締める」と確定済みとして残り、その月の明細は誤って編集・削除できなくなります（締め解除でいつでも戻せます）。「CSV」で月単位の出納帳を書き出せます。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sect-title">関係ソフト用に出力</div>
+      <div class="card"><div class="bd">
+        <div class="tools-grid">
+          <button class="btn btn-ghost" data-exp="journal">汎用 仕訳CSV<br><small>借方/貸方・税区分つき（最も汎用）</small></button>
+          <button class="btn btn-ghost" data-exp="cashbook">出納帳CSV<br><small>日付・入金・出金・残高</small></button>
+          <button class="btn btn-ghost" data-exp="freee">freee 向けCSV<br><small>取引インポート用の素体</small></button>
+          <button class="btn btn-ghost" data-exp="mf">マネーフォワード 向けCSV<br><small>仕訳帳形式の素体</small></button>
+          <button class="btn btn-ghost" data-exp="yayoi">弥生 向けCSV<br><small>仕訳日記帳形式の素体</small></button>
+          <button class="btn btn-ghost" data-exp="json">JSON 出力<br><small>領収書読み取りアプリと共通項目</small></button>
+        </div>
+        <div class="note" id="exportNote">
+          ※ <b>汎用仕訳CSV</b>・<b>出納帳CSV</b>・<b>JSON</b> は内容を確定的に出力します。freee／マネーフォワード／弥生 向けは各社の標準的な列構成に寄せた「素体」で、取込時に列の対応づけ調整が要る場合があります。実際にお使いのソフトを教えていただければ、その形式に合わせて固定列化できます。CSVはExcelで文字化けしないようUTF-8(BOM付)で出力します。
+        </div>
+
+        <div class="imp-row editonly" style="margin-top:12px;">
+          <button class="btn btn-ghost" id="viewLinkBtn">🔗 閲覧リンクをコピー</button>
+          <span class="note" style="margin:0;align-self:center;">見る人に渡すと、編集できない閲覧モードで開きます。</span>
+        </div>
+
+        <details class="imp editonly" style="margin-top:14px;">
+          <summary>＋ 領収書アプリのデータを取り込む（JSON / CSV）</summary>
+          <p class="note" style="margin-top:6px;">読み取りアプリのJSON配列、または<code>発行日,支払先,勘定科目,税区分,合計金額,摘要,登録番号,領収書ID</code>形式のCSVを貼り付けてください。</p>
+          <textarea id="impText" placeholder='[{"発行日":"2026-06-20","支払先":"○○文具店","勘定科目":"消耗品費","税区分":"10","合計金額":1280,"摘要":"封筒","領収書ID":"RCPT-0042"}]'></textarea>
+          <div class="imp-row">
+            <button class="btn btn-ghost" id="impBtn">取り込む</button>
+            <input type="file" id="impFile" accept=".json,.csv" style="font-size:12px;">
+          </div>
+        </details>
+      </div></div>
+
+      <div class="sect-title editonly">設定</div>
+      <div class="card editonly"><div class="bd">
+        <div class="settings-row">
+          <div class="field"><label>会社名（アプリ名・帳票に反映）</label><input type="text" id="coName" value="美倫株式会社"></div>
+          <div class="field amt-input"><label>仮払金の上限（運用に応じて変更可）</label><span>¥</span><input type="number" id="setFloat" min="0" step="5000" value="100000"></div>
+          <div class="field"><label>残高警告ライン</label><select id="setThresh"><option value="0.3">上限の30%</option><option value="0.2">上限の20%</option><option value="0.5">上限の50%</option></select></div>
+          <button class="btn btn-ghost" id="saveSet">設定を保存</button>
+        </div>
+        <div class="preset-row" id="floatPresets">
+          <span class="preset-label">上限プリセット</span>
+          <button type="button" data-float="10000">¥10,000</button>
+          <button type="button" data-float="50000">¥50,000</button>
+          <button type="button" data-float="100000">¥100,000</button>
+        </div>
+        <div class="imp-row" style="margin-top:14px;">
+          <button class="btn btn-ghost danger" id="resetBtn">すべての記帳を消去</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <footer>美倫株式会社 仮払金出納帳 ｜ クラウド（Supabase）でデータを共有・保存しています</footer>
+</div>
+
+<script>
+/* ---------- Supabase backend ---------- */
+const SB={
+  url:'https://kqkfbulbravvtepqfbiu.supabase.co',
+  key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtxa2ZidWxicmF2dnRlcHFmYml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTg2MTUsImV4cCI6MjA5NDE5NDYxNX0.YbhE4shW6zJlCHAJRycjSe1KKDgUZx09Thq5yhlGclM',
+  ledger:'birin'   // 台帳の識別子。会社や用途を分けたい場合はここを変える
+};
+let memFallback=false, lastSync=null;
+const H=extra=>Object.assign({apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json'},extra||{});
+const EP=t=>`${SB.url}/rest/v1/${t}`;
+
+async function sbReq(url,opt){
+  const r=await fetch(url,opt);
+  if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(r.status+' '+t);}
+  return r.status===204?null:r.json();
+}
+function rowToEntry(r){
+  return {id:r.id,created:Date.parse(r.created_at)||Date.now(),date:r.pdate,adate:r.adate||r.pdate,
+    type:r.type,amount:r.amount,cat:r.cat,acct:r.acct,payee:r.payee||'',note:r.note||'',
+    tax:r.tax||'10',inv:r.inv||'',rcpt:r.rcpt||''};
+}
+function entryToRow(e){
+  return {id:e.id,ledger:SB.ledger,type:e.type,adate:e.adate||e.date,pdate:e.date,amount:e.amount,
+    cat:e.cat,acct:e.acct,payee:e.payee,note:e.note,tax:e.tax,inv:e.inv,rcpt:e.rcpt};
+}
+
+// pull: クラウドから最新を取得して描画
+async function pull(){
+  try{
+    const [rows,meta]=await Promise.all([
+      sbReq(EP(`pettycash_entries?ledger=eq.${SB.ledger}&select=*`),{headers:H()}),
+      sbReq(EP(`pettycash_meta?ledger=eq.${SB.ledger}&select=settings`),{headers:H()})
+    ]);
+    S.entries=(rows||[]).map(rowToEntry);
+    if(meta&&meta[0]&&meta[0].settings) S.settings={...S.settings,...meta[0].settings};
+    memFallback=false; lastSync=new Date();
+  }catch(e){ if(!memFallback) console.warn('仮払金出納帳: クラウドに接続できません —', (e&&e.message)?e.message:e); memFallback=true; }
+  render();
+}
+// 個別書き込み
+async function sbInsert(entries){
+  await sbReq(EP('pettycash_entries'),{method:'POST',headers:H({Prefer:'return=minimal'}),body:JSON.stringify(entries.map(entryToRow))});
+}
+async function sbDelete(id){
+  await sbReq(EP(`pettycash_entries?id=eq.${encodeURIComponent(id)}`),{method:'DELETE',headers:H({Prefer:'return=minimal'})});
+}
+async function sbDeleteAll(){
+  await sbReq(EP(`pettycash_entries?ledger=eq.${SB.ledger}`),{method:'DELETE',headers:H({Prefer:'return=minimal'})});
+}
+async function sbSaveMeta(){
+  await sbReq(EP('pettycash_meta'),{method:'POST',
+    headers:H({Prefer:'resolution=merge-duplicates,return=minimal'}),
+    body:JSON.stringify({ledger:SB.ledger,settings:S.settings,updated_at:new Date().toISOString()})});
+}
+
+/* ---------- state ---------- */
+const ACCT={'文房具・事務用品':'消耗品費','電気代':'水道光熱費','ガス代':'水道光熱費','水道代':'水道光熱費','通信費':'通信費','交通費':'旅費交通費','その他':'雑費'};
+const S={settings:{company:'美倫株式会社',float:100000,thresh:0.3,closedMonths:[]},entries:[],type:'expense',view:'detail',mode:'edit'};
+const $=id=>document.getElementById(id);
+const yen=n=>'¥'+Math.round(n).toLocaleString('ja-JP');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const isClosed=m=>(S.settings.closedMonths||[]).includes(m);
+const ym=d=>d.slice(0,7);
+const ymLabel=m=>m.slice(0,4)+'年'+m.slice(5)+'月';
+
+/* ---------- compute ---------- */
+function sorted(){
+  return [...S.entries].sort((a,b)=> a.date===b.date ? a.created-b.created : a.date<b.date?-1:1);
+}
+function withBalance(){
+  let bal=0;return sorted().map(e=>{bal+=e.type==='replenish'?e.amount:-e.amount;return{...e,bal};});
+}
+function monthlySummary(){
+  const list=withBalance();
+  const months=[...new Set(list.map(e=>ym(e.date)))].sort();
+  return months.map(m=>{
+    const inM=list.filter(e=>ym(e.date)===m);
+    const before=list.filter(e=>e.date<m+'-01');
+    const opening=before.length?before[before.length-1].bal:0;
+    const income=inM.filter(e=>e.type==='replenish').reduce((s,e)=>s+e.amount,0);
+    const expense=inM.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
+    const closing=inM.length?inM[inM.length-1].bal:opening;
+    return {month:m,opening,income,expense,closing,count:inM.length,closed:isClosed(m)};
+  }).reverse();
+}
+
+/* ---------- render ---------- */
+function render(){
+  const list=withBalance();
+  const bal=list.length?list[list.length-1].bal:0;
+  const fl=S.settings.float||0;
+  const pct=fl>0?Math.max(0,Math.min(100,Math.round(bal/fl*100))):0;
+  const low=fl>0&&bal<fl*S.settings.thresh;
+
+  $('balNum').textContent=Math.round(bal).toLocaleString('ja-JP');
+  $('floatTxt').textContent=yen(fl);
+  $('floatLegend').textContent='上限 '+yen(fl);
+  $('pctTxt').textContent=pct+'%';
+  $('fillBar').style.width=pct+'%';
+  $('tray').classList.toggle('low',low);
+  $('replTxt').textContent=yen(Math.max(0,fl-bal));
+
+  // month options
+  const months=[...new Set(S.entries.map(e=>e.date.slice(0,7)))].sort().reverse();
+  const fm=$('filterMonth'), cur=fm.value;
+  fm.innerHTML='<option value="">全期間</option>'+months.map(m=>`<option value="${m}">${m.replace('-','年')}月</option>`).join('');
+  fm.value=months.includes(cur)?cur:'';
+
+  // filters
+  const mF=fm.value, cF=$('filterCat').value, tF=$('filterText').value.trim();
+  let rows=list.filter(e=>{
+    if(mF&&!e.date.startsWith(mF))return false;
+    if(cF&&e.cat!==cF)return false;
+    if(tF&&!((e.payee||'')+(e.note||'')).includes(tF))return false;
+    return true;
+  });
+  $('countTag').textContent=rows.length+' 件';
+
+  const tb=$('tbody');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="7" class="empty">該当する記帳はありません。左のフォームから記帳できます。</td></tr>';}
+  else{
+    let html='';
+    // carry-over row when month filtered
+    if(mF){
+      const prior=list.filter(e=>e.date<mF+'-01');
+      if(prior.length){const cb=prior[prior.length-1].bal;
+        html+=`<tr class="carry"><td colspan="5">前月繰越</td><td class="num bal">${yen(cb)}</td><td></td></tr>`;}
+    }
+    rows.forEach(e=>{
+      const isExp=e.type==='expense';
+      const acct=e.acct||ACCT[e.cat]||'';
+      const taxTag=isExp&&e.tax!=='0'?` <span class="tag">${e.tax==='8'?'軽減8%':'10%'}</span>`:'';
+      const locked=isClosed(ym(e.date));
+      const adate=e.adate||e.date;
+      const aLine=adate!==e.date?`<div class="acct">発生 ${adate.slice(5).replace('-','/')}</div>`:'';
+      html+=`<tr class="${locked?'locked':''}">
+        <td class="tnum">${e.date.slice(5).replace('-','/')}${aLine}</td>
+        <td><span class="tag ${isExp?'':'k'}">${isExp?e.cat:'補充'}</span>${taxTag}</td>
+        <td><div>${esc(e.payee)||'<span style="color:#aaa">—</span>'}</div>
+            ${e.note?`<div class="acct">${esc(e.note)}</div>`:''}
+            ${isExp?`<div class="acct">▸ ${acct}</div>`:''}
+            ${e.rcpt?`<div class="rcpt">📎 ${esc(e.rcpt)}</div>`:''}</td>
+        <td class="num in">${e.type==='replenish'?yen(e.amount):''}</td>
+        <td class="num out">${isExp?yen(e.amount):''}</td>
+        <td class="num bal">${yen(e.bal)}</td>
+        <td>${locked?'<span class="lk" title="締め済み">🔒</span>':(S.mode==='edit'?`<button class="del" data-del="${e.id}" title="削除">✕</button>`:'')}</td>
+      </tr>`;
+    });
+    tb.innerHTML=html;
+  }
+
+  // category summary for filtered scope
+  const exp=rows.filter(e=>e.type==='expense');
+  const byCat={};exp.forEach(e=>byCat[e.cat]=(byCat[e.cat]||0)+e.amount);
+  const totalExp=exp.reduce((s,e)=>s+e.amount,0);
+  const totalRep=rows.filter(e=>e.type==='replenish').reduce((s,e)=>s+e.amount,0);
+  let chips=`<div class="chip"><span>出金合計</span><b style="color:var(--out)">${yen(totalExp)}</b></div>`;
+  chips+=`<div class="chip"><span>補充合計</span><b style="color:var(--in)">${yen(totalRep)}</b></div>`;
+  Object.entries(byCat).sort((a,b)=>b[1]-a[1]).forEach(([c,v])=>chips+=`<div class="chip"><span>${c}</span><b>${yen(v)}</b></div>`);
+  $('sumChips').innerHTML=chips;
+
+  // connection pill
+  paintPill();
+
+  // mode (edit / view)
+  document.body.classList.toggle('view',S.mode==='view');
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===S.mode));
+
+  // app title from company name
+  const titleStr=(S.settings.company||'美倫株式会社')+' 仮払金出納帳';
+  const att=$('appTitleText'); if(att) att.textContent=titleStr;
+  document.title=titleStr;
+
+  document.querySelectorAll('#floatPresets [data-float]').forEach(b=>b.classList.toggle('on',+b.dataset.float===S.settings.float));
+  syncCatFilter(cF);
+  renderMonthly();
+
+  // view toggle
+  const detail=S.view==='detail';
+  $('detailView').style.display=detail?'':'none';
+  $('monthlyView').style.display=detail?'none':'';
+  document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.view===S.view));
+  $('countTag').textContent=detail?(rows.length+' 件'):(monthlySummary().length+' か月');
+}
+function renderMonthly(){
+  const ms=monthlySummary();
+  const tb=$('mbody');
+  if(!ms.length){tb.innerHTML='<tr><td colspan="8" class="empty">記帳がまだありません。</td></tr>';return;}
+  tb.innerHTML=ms.map(m=>`<tr>
+    <td><b>${ymLabel(m.month)}</b></td>
+    <td class="opening">${yen(m.opening)}</td>
+    <td class="num in">${m.income?yen(m.income):'—'}</td>
+    <td class="num out">${m.expense?yen(m.expense):'—'}</td>
+    <td class="num bal">${yen(m.closing)}</td>
+    <td class="num">${m.count}</td>
+    <td>${m.closed?'<span class="badge done">✓ 締め済み</span>':'<span class="badge open">記帳中</span>'}</td>
+    <td style="white-space:nowrap">
+      <button class="mbtn" data-mcsv="${m.month}">CSV</button>
+      ${S.mode!=='edit'?''
+        : m.closed
+        ? `<button class="mbtn reopen" data-mopen="${m.month}">締め解除</button>`
+        : `<button class="mbtn close" data-mclose="${m.month}">締める</button>`}
+    </td>
+  </tr>`).join('');
+}
+function syncCatFilter(keep){
+  const cats=[...new Set(S.entries.filter(e=>e.type==='expense').map(e=>e.cat))];
+  const sel=$('filterCat');
+  sel.innerHTML='<option value="">全区分</option>'+cats.map(c=>`<option ${c===keep?'selected':''}>${c}</option>`).join('');
+}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ---------- actions ---------- */
+function setType(t){
+  S.type=t;
+  document.querySelectorAll('#typeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.type===t));
+  const exp=t==='expense';
+  $('catWrap').style.display=exp?'':'none';
+  $('taxRow').style.display=exp?'':'none';
+  $('fPayee').previousElementSibling.textContent=exp?'支払先':'受領元';
+}
+function refreshAcct(){$('acctAuto').textContent='勘定科目：'+(ACCT[$('fCat').value]||'雑費');}
+
+async function addEntry(){
+  if(S.mode==='view'){alert('閲覧モードでは記帳できません。編集モードに切り替えてください。');return;}
+  const amount=Math.round(+$('fAmount').value);
+  const pdate=$('fPdate').value, adate=$('fAdate').value||pdate;
+  if(!pdate){alert('支払日を入力してください。');return;}
+  if(!amount||amount<=0){alert('金額を入力してください。');return;}
+  if(isClosed(ym(pdate))){alert(ymLabel(ym(pdate))+'は締め済みです。記帳するには「月別サマリー」で締めを解除してください。');return;}
+  const exp=S.type==='expense';
+  const entry={
+    id:uid(),created:Date.now(),date:pdate,adate,type:S.type,amount,
+    cat:exp?$('fCat').value:'仮払金補充',
+    acct:exp?ACCT[$('fCat').value]:'仮払金',
+    payee:$('fPayee').value.trim(),note:$('fNote').value.trim(),
+    tax:exp?$('fTax').value:'0',inv:$('fInv').value.trim(),rcpt:$('fRcpt').value.trim()
+  };
+  setSyncing(true);
+  try{ await sbInsert([entry]); }
+  catch(e){ setSyncing(false); alert('保存に失敗しました。通信状態を確認して再度お試しください。');return; }
+  ['fAmount','fPayee','fNote','fInv','fRcpt'].forEach(i=>$(i).value='');
+  await pull(); setSyncing(false);
+}
+async function delEntry(id){
+  const e=S.entries.find(x=>x.id===id);
+  if(e&&isClosed(ym(e.date))){alert('締め済みの月は削除できません。');return;}
+  if(!confirm('この記帳を削除しますか？'))return;
+  setSyncing(true);
+  try{ await sbDelete(id); }catch(err){ setSyncing(false); alert('削除に失敗しました。');return; }
+  await pull(); setSyncing(false);
+}
+async function closeMonth(m){
+  const ms=monthlySummary().find(x=>x.month===m);
+  if(!confirm(`${ymLabel(m)}を締めます。\n月末残高 ${yen(ms.closing)}・${ms.count}件を確定し、以後この月は編集できなくなります。\nよろしいですか？`))return;
+  S.settings.closedMonths=[...new Set([...(S.settings.closedMonths||[]),m])];
+  setSyncing(true); try{await sbSaveMeta();}catch(e){alert('保存に失敗しました。');} await pull(); setSyncing(false);
+}
+async function reopenMonth(m){
+  if(!confirm(`${ymLabel(m)}の締めを解除します。再び編集できる状態に戻します。`))return;
+  S.settings.closedMonths=(S.settings.closedMonths||[]).filter(x=>x!==m);
+  setSyncing(true); try{await sbSaveMeta();}catch(e){alert('保存に失敗しました。');} await pull(); setSyncing(false);
+}
+function exportMonth(m){
+  const list=withBalance();
+  const inM=list.filter(e=>ym(e.date)===m);
+  if(!inM.length){alert('この月の記帳がありません。');return;}
+  const before=list.filter(e=>e.date<m+'-01');
+  const opening=before.length?before[before.length-1].bal:0;
+  const head=['支払日','発生日','区分','勘定科目','支払先/受領元','摘要','入金','出金','残高'];
+  const rows=[csvRow(['',m+' 前月繰越','','','','','','',opening])];
+  inM.forEach(e=>rows.push(csvRow([e.date,e.adate||e.date,e.type==='expense'?e.cat:'補充',e.acct||'',e.payee,e.note,
+    e.type==='replenish'?e.amount:'',e.type==='expense'?e.amount:'',e.bal])));
+  dl(`仮払金_出納帳_${m}.csv`,[csvRow(head),...rows].join('\n'));
+}
+
+/* ---------- export ---------- */
+function dl(name,text){
+  const blob=new Blob(['\uFEFF'+text],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function dlJSON(name,obj){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+const csvCell=v=>{v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+const csvRow=arr=>arr.map(csvCell).join(',');
+function taxLabel(t){return t==='8'?'課税仕入8%(軽減)':t==='0'?'対象外':'課税仕入10%';}
+const stamp=()=>new Date().toISOString().slice(0,10);
+
+function exportAs(kind){
+  const list=withBalance();
+  if(!list.length){alert('記帳がありません。');return;}
+  const co=S.settings.company;
+  if(kind==='journal'){
+    const head=['発生日','支払日','借方勘定科目','借方金額','貸方勘定科目','貸方金額','税区分','摘要','支払先/受領元','登録番号'];
+    const rows=list.map(e=>{
+      const a=e.adate||e.date;
+      const note=[e.cat!=='仮払金補充'?e.cat:'',e.note].filter(Boolean).join(' ');
+      return e.type==='expense'
+        ? csvRow([a,e.date,e.acct||'雑費',e.amount,'仮払金',e.amount,taxLabel(e.tax),note,e.payee,e.inv])
+        : csvRow([a,e.date,'仮払金',e.amount,'現金',e.amount,'対象外','仮払金補充',e.payee,'']);
+    });
+    dl(`仮払金_仕訳_${stamp()}.csv`,[csvRow(head),...rows].join('\n'));
+  }
+  else if(kind==='cashbook'){
+    const head=['支払日','発生日','区分','勘定科目','支払先/受領元','摘要','入金','出金','残高'];
+    const rows=list.map(e=>csvRow([e.date,e.adate||e.date,e.type==='expense'?e.cat:'補充',e.acct||'',e.payee,e.note,
+      e.type==='replenish'?e.amount:'',e.type==='expense'?e.amount:'',e.bal]));
+    dl(`仮払金_出納帳_${stamp()}.csv`,[csvRow(head),...rows].join('\n'));
+  }
+  else if(kind==='freee'){
+    const head=['収支区分','発生日','決済日','勘定科目','税区分','金額','取引先','品目','備考'];
+    const rows=list.filter(e=>e.type==='expense').map(e=>csvRow(['支出',e.adate||e.date,e.date,e.acct||'雑費',taxLabel(e.tax),e.amount,e.payee,e.cat,e.note]));
+    dl(`仮払金_freee_${stamp()}.csv`,[csvRow(head),...rows].join('\n'));
+  }
+  else if(kind==='mf'){
+    const head=['取引No','取引日','借方勘定科目','借方金額','借方税区分','貸方勘定科目','貸方金額','摘要'];
+    const rows=list.map((e,i)=>e.type==='expense'
+      ? csvRow([i+1,e.adate||e.date,e.acct||'雑費',e.amount,taxLabel(e.tax),'仮払金',e.amount,[e.payee,e.note].filter(Boolean).join(' ')])
+      : csvRow([i+1,e.adate||e.date,'仮払金',e.amount,'対象外','現金',e.amount,'仮払金補充']));
+    dl(`仮払金_MF_${stamp()}.csv`,[csvRow(head),...rows].join('\n'));
+  }
+  else if(kind==='yayoi'){
+    // 弥生 仕訳日記帳に寄せた素体（伝票日付=発生日）
+    const head=['識別フラグ','伝票日付','借方勘定科目','借方金額','借方税区分','貸方勘定科目','貸方金額','貸方税区分','摘要'];
+    const rows=list.map(e=>{const a=(e.adate||e.date).replace(/-/g,'/');return e.type==='expense'
+      ? csvRow(['2000',a,e.acct||'雑費',e.amount,taxLabel(e.tax),'仮払金',e.amount,'対象外',[e.payee,e.note].filter(Boolean).join(' ')])
+      : csvRow(['2000',a,'仮払金',e.amount,'対象外','現金',e.amount,'対象外','仮払金補充']);});
+    dl(`仮払金_弥生_${stamp()}.csv`,[csvRow(head),...rows].join('\n'));
+  }
+  else if(kind==='json'){
+    const out=list.map(e=>({
+      発生日:e.adate||e.date,支払日:e.date,区分:e.type==='expense'?'出金':'補充',
+      支払先:e.payee,勘定科目:e.acct,税区分:e.tax,合計金額:e.amount,
+      摘要:e.note,登録番号:e.inv,領収書ID:e.rcpt,残高:e.bal
+    }));
+    dlJSON(`仮払金_data_${stamp()}.json`,out);
+  }
+}
+
+/* ---------- import (receipt app) ---------- */
+function importText(raw){
+  raw=raw.trim();if(!raw){alert('データを貼り付けてください。');return;}
+  let recs=[];
+  try{
+    if(raw[0]==='['||raw[0]==='{'){const j=JSON.parse(raw);recs=Array.isArray(j)?j:[j];}
+    else recs=parseCSV(raw);
+  }catch(e){alert('読み取れませんでした。JSON配列か、見出し行つきCSVを貼り付けてください。');return;}
+  const toAdd=[]; let skip=0;
+  recs.forEach(r=>{
+    const pdate=r['支払日']||r['発行日']||r['日付']||r.date;
+    const adate=r['発生日']||r['取引日']||r['発行日']||r['日付']||pdate;
+    const amount=Math.round(+(r['合計金額']||r['金額']||r.amount||0));
+    if(!pdate||!amount)return;
+    if(isClosed(ym(pdate))){skip++;return;}
+    const acct=r['勘定科目']||r.account||'雑費';
+    const cat=Object.keys(ACCT).find(k=>ACCT[k]===acct)||'その他';
+    const isRep=(r['区分']||'').includes('補充');
+    toAdd.push({id:uid(),created:Date.now(),date:pdate,adate,type:isRep?'replenish':'expense',amount,
+      cat:isRep?'仮払金補充':cat,acct:isRep?'仮払金':acct,
+      payee:r['支払先']||r.payee||'',note:r['摘要']||r['但し書き']||r.note||'',
+      tax:String(r['税区分']||r.tax||'10').replace('%',''),inv:r['登録番号']||r.inv||'',rcpt:r['領収書ID']||r.rcpt||''});
+  });
+  if(!toAdd.length){alert('取り込める行がありませんでした。'+(skip?`（締め済みの月の ${skip} 件はスキップ）`:''));return;}
+  setSyncing(true);
+  sbInsert(toAdd).then(()=>pull()).then(()=>{setSyncing(false);alert(toAdd.length+' 件を取り込みました。'+(skip?`\n（締め済みの月の ${skip} 件はスキップしました）`:''));$('impText').value='';})
+    .catch(e=>{setSyncing(false);alert('取り込みに失敗しました。');});
+}
+function parseCSV(text){
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  const head=splitCSV(lines[0]);
+  return lines.slice(1).map(l=>{const c=splitCSV(l);const o={};head.forEach((h,i)=>o[h.trim()]=c[i]);return o;});
+}
+function splitCSV(line){
+  const out=[];let cur='',q=false;
+  for(let i=0;i<line.length;i++){const ch=line[i];
+    if(q){if(ch==='"'){if(line[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=ch;}
+    else{if(ch==='"')q=true;else if(ch===','){out.push(cur);cur='';}else cur+=ch;}}
+  out.push(cur);return out;
+}
+
+/* ---------- settings ---------- */
+async function saveSettings(){
+  S.settings.float=Math.round(+$('setFloat').value)||0;
+  S.settings.thresh=+$('setThresh').value;
+  S.settings.company=$('coName').value.trim()||'美倫株式会社';
+  setSyncing(true); try{await sbSaveMeta();}catch(e){alert('保存に失敗しました。');} await pull(); setSyncing(false);
+}
+
+/* ---------- sync indicator ---------- */
+let syncing=false;
+function setSyncing(on){syncing=on;paintPill();}
+function paintPill(){
+  const sp=$('sharePill'); if(!sp)return;
+  sp.classList.toggle('local',memFallback);
+  sp.classList.toggle('syncing',syncing&&!memFallback);
+  const t=memFallback?'接続できません（再試行は↻）'
+        :syncing?'同期中…'
+        :('クラウド接続中'+(lastSync?' ・ 最終更新 '+lastSync.toTimeString().slice(0,5):''));
+  $('shareTxt').textContent=t;
+  $('banner').style.display=memFallback?'block':'none';
+  if(memFallback)$('banner').innerHTML='⚠ クラウドに接続できませんでした。通信状態を確認し、右上の「↻」で再読み込みしてください。';
+}
+
+/* ---------- wire ---------- */
+function wire(){
+  const today=new Date().toISOString().slice(0,10);
+  $('fAdate').value=today; $('fPdate').value=today;
+  $('fAdate').oninput=()=>{ if(!$('fPdate').value) $('fPdate').value=$('fAdate').value; };
+  document.querySelectorAll('#typeSeg button').forEach(b=>b.onclick=()=>setType(b.dataset.type));
+  $('fCat').onchange=refreshAcct;
+  $('addBtn').onclick=addEntry;
+  $('tbody').onclick=e=>{const b=e.target.closest('[data-del]');if(b)delEntry(b.dataset.del);};
+  $('viewSeg').onclick=e=>{const b=e.target.closest('[data-view]');if(b){S.view=b.dataset.view;render();}};
+  $('mbody').onclick=e=>{
+    const t=e.target.closest('button');if(!t)return;
+    if(t.dataset.mcsv)exportMonth(t.dataset.mcsv);
+    else if(t.dataset.mclose)closeMonth(t.dataset.mclose);
+    else if(t.dataset.mopen)reopenMonth(t.dataset.mopen);
+  };
+  ['filterMonth','filterCat','filterText'].forEach(i=>$(i).oninput=render);
+  document.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>exportAs(b.dataset.exp));
+  $('impBtn').onclick=()=>importText($('impText').value);
+  $('impFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importText(r.result);r.readAsText(f);};
+  $('saveSet').onclick=saveSettings;
+  $('floatPresets').onclick=e=>{const b=e.target.closest('[data-float]');if(!b)return;$('setFloat').value=b.dataset.float;saveSettings();};
+  $('coName').onchange=saveSettings;
+  $('refreshBtn').onclick=()=>pull();
+  $('sharePill').onclick=()=>pull();
+  // 自動更新は行わない。最新の取り込みは「↻ 更新」ボタンのみ。
+  $('modeSeg').onclick=e=>{const b=e.target.closest('[data-mode]');if(b){S.mode=b.dataset.mode;render();}};
+  $('viewLinkBtn').onclick=()=>{
+    const link=location.origin+location.pathname+'?mode=view';
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(link).then(()=>alert('閲覧リンクをコピーしました：\n'+link)).catch(()=>prompt('このリンクを見る人に渡してください：',link));
+    }else prompt('このリンクを見る人に渡してください：',link);
+  };
+  $('resetBtn').onclick=async()=>{if(confirm('すべての記帳を消去します。元に戻せません。よろしいですか？')){setSyncing(true);try{await sbDeleteAll();}catch(e){alert('消去に失敗しました。');}await pull();setSyncing(false);}};
+}
+
+/* ---------- init ---------- */
+(async function(){
+  try{ if(new URLSearchParams(location.search).get('mode')==='view') S.mode='view'; }catch(e){}
+  $('coName').value=S.settings.company;
+  $('setFloat').value=S.settings.float;
+  $('setThresh').value=String(S.settings.thresh);
+  refreshAcct();setType('expense');wire();
+  await pull();
+  // 取得後、設定欄をクラウドの値に同期
+  $('coName').value=S.settings.company;
+  $('setFloat').value=S.settings.float;
+  $('setThresh').value=String(S.settings.thresh);
+})();
+</script>
+</body>
+</html>
