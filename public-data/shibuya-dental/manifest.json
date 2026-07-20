@@ -1,0 +1,60 @@
+{
+  "dataset": "渋谷区 歯科医院・院長公開情報データセット",
+  "version": "2026-07-21",
+  "total_records": 213,
+  "encoding": "UTF-8",
+  "repository": "onitaketan/birincash",
+  "base_path": "public-data/shibuya-dental",
+  "files": [
+    {
+      "area_code": "A01",
+      "area": "恵比寿・広尾・代官山",
+      "record_count": 50,
+      "csv_file": "shibuya_dental_a01_2026-07-21.csv",
+      "json_file": "shibuya_dental_a01_2026-07-21.json"
+    },
+    {
+      "area_code": "A02",
+      "area": "渋谷・神宮前・東",
+      "record_count": 43,
+      "csv_file": "shibuya_dental_a02_2026-07-21.csv",
+      "json_file": "shibuya_dental_a02_2026-07-21.json"
+    },
+    {
+      "area_code": "A03",
+      "area": "初台・代々木・千駄ヶ谷",
+      "record_count": 39,
+      "csv_file": "shibuya_dental_a03_2026-07-21.csv",
+      "json_file": "shibuya_dental_a03_2026-07-21.json"
+    },
+    {
+      "area_code": "A04",
+      "area": "神山町・松涛・宇田川・道玄坂・桜丘周辺",
+      "record_count": 26,
+      "csv_file": "shibuya_dental_a04_2026-07-21.csv",
+      "json_file": "shibuya_dental_a04_2026-07-21.json"
+    },
+    {
+      "area_code": "A05",
+      "area": "大山町・上原・元代々木・富ヶ谷",
+      "record_count": 20,
+      "csv_file": "shibuya_dental_a05_2026-07-21.csv",
+      "json_file": "shibuya_dental_a05_2026-07-21.json"
+    },
+    {
+      "area_code": "A06",
+      "area": "本町・幡ヶ谷・笹塚",
+      "record_count": 33,
+      "csv_file": "shibuya_dental_a06_2026-07-21.csv",
+      "json_file": "shibuya_dental_a06_2026-07-21.json"
+    },
+    {
+      "area_code": "SUP",
+      "area": "公式確認による補足収録",
+      "record_count": 2,
+      "csv_file": "shibuya_dental_sup_2026-07-21.csv",
+      "json_file": "shibuya_dental_sup_2026-07-21.json"
+    }
+  ],
+  "usage_notice": "各AIにはREADMEまたはmanifest.jsonのURLを渡してください。必要なエリアのCSV/JSONを選んで読み込めます。"
+}
