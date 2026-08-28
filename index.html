@@ -357,7 +357,12 @@ const EP=t=>`${SB.url}/rest/v1/${t}`;
 async function sbReq(url,opt){
   const r=await fetch(url,opt);
   if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(r.status+' '+t);}
-  return r.status===204?null:r.json();
+  // 書き込み系（Prefer: return=minimal）は 201/204 を本文なしで返す。
+  // 本文が空のときに r.json() を呼ぶと例外になるので、空なら null を返す。
+  if(r.status===204||r.status===205)return null;
+  const t=await r.text();
+  if(!t)return null;
+  try{return JSON.parse(t);}catch(e){return null;}
 }
 function rowToEntry(r){
   return {id:r.id,created:Date.parse(r.created_at)||Date.now(),date:r.pdate,adate:r.adate||r.pdate,
@@ -583,7 +588,7 @@ async function addEntry(){
   };
   setSyncing(true);
   try{ await sbInsert([entry]); }
-  catch(e){ setSyncing(false); alert('保存に失敗しました。通信状態を確認して再度お試しください。');return; }
+  catch(e){ console.error('記帳の保存に失敗:',e); setSyncing(false); alert('保存に失敗しました。通信状態を確認して再度お試しください。');return; }
   ['fAmount','fPayee','fNote','fInv','fRcpt'].forEach(i=>$(i).value='');
   await pull(); setSyncing(false);
 }
