@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鬼道占術 — 縁鍛冶</title>
+<meta name="description" content="生年月日から本命鬼を導き、二人の縁の型を鍛える和風占術アプリ。干支と五行にもとづく命式・相性・日運鑑定。">
+<meta name="theme-color" content="#0E1013">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1013; --bg2:#141821; --surface:#171B22; --surface2:#1D222B;
+    --ink:#ECE7DC; --sub:#9AA1AE; --dim:#6C7482;
+    --line:#2A303B; --line-strong:#3A424F;
+    --gold:#C9A24B; --gold-soft:rgba(201,162,75,.14);
+    --shu:#C2422F; --ao:#4E7FA6; --midori:#4F8A6B; --murasaki:#7B6BA8;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 40px rgba(0,0,0,.35);
+    --serif:'Shippori Mincho','Yu Mincho','Hiragino Mincho ProN',serif;
+    --sans:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans); color:var(--ink); font-size:14px; line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(900px 480px at 12% -8%, rgba(201,162,75,.10), transparent 62%),
+      radial-gradient(760px 420px at 92% 4%, rgba(194,66,47,.09), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:26px 18px 88px;}
+  .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum";}
+  ::selection{background:rgba(201,162,75,.3);}
+
+  /* ---------- header ---------- */
+  header.top{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:6px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .seal{
+    width:52px;height:52px;flex:none;border-radius:11px;display:grid;place-items:center;
+    background:linear-gradient(150deg,#C2422F,#8E2C1E);
+    color:#F6EFE2;font-family:var(--serif);font-size:26px;font-weight:800;line-height:1;
+    box-shadow:0 0 0 1px rgba(255,255,255,.10) inset, 0 6px 20px rgba(194,66,47,.32);
+    letter-spacing:0;
+  }
+  .brand .eyebrow{font-size:10px;letter-spacing:.4em;color:var(--gold);font-weight:700;margin-bottom:3px;}
+  .brand h1{font-family:var(--serif);font-weight:800;font-size:27px;margin:0;letter-spacing:.14em;}
+  .brand .tag{font-size:11.5px;color:var(--dim);margin-top:3px;letter-spacing:.06em;}
+  .today{
+    text-align:right;font-size:11.5px;color:var(--sub);
+    border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:11px;padding:9px 14px;
+  }
+  .today .k{font-family:var(--serif);font-size:19px;color:var(--gold);letter-spacing:.1em;display:block;line-height:1.3;}
+
+  /* ---------- tabs ---------- */
+  nav.tabs{display:flex;gap:4px;margin:18px 0 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  nav.tabs button{
+    font:inherit;font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.1em;
+    background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);
+    padding:9px 16px;cursor:pointer;transition:.15s;margin-bottom:-1px;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button[aria-selected="true"]{color:var(--gold);border-bottom-color:var(--gold);}
+  nav.tabs button:focus-visible{outline:2px solid var(--ao);outline-offset:2px;border-radius:6px;}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);}
+  .card .hd{padding:13px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .card .hd h2{font-family:var(--serif);font-size:15px;font-weight:600;margin:0;letter-spacing:.12em;}
+  .card .hd .note{font-size:11px;color:var(--dim);}
+  .card .bd{padding:18px;}
+  .grid{display:grid;grid-template-columns:330px 1fr;gap:20px;align-items:start;}
+  @media(max-width:860px){.grid{grid-template-columns:1fr;}}
+
+  /* ---------- form ---------- */
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:11.5px;color:var(--sub);font-weight:600;margin-bottom:5px;letter-spacing:.04em;}
+  .field input,.field select{
+    width:100%;font:inherit;font-size:13.5px;padding:9px 11px;
+    border:1px solid var(--line-strong);border-radius:9px;
+    background:var(--bg2);color:var(--ink);
+  }
+  .field input::placeholder{color:#5C6473;}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft);}
+  .field .hint{font-size:10.5px;color:var(--dim);margin-top:4px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .btn{
+    width:100%;font:inherit;font-family:var(--serif);font-size:15px;font-weight:700;letter-spacing:.16em;
+    padding:12px;border-radius:10px;cursor:pointer;transition:.15s;
+    border:1px solid var(--gold);background:linear-gradient(160deg,#C9A24B,#A8823A);color:#15181D;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn:active{transform:translateY(1px);}
+  .btn.ghost{background:transparent;color:var(--gold);border-color:var(--line-strong);font-size:13px;letter-spacing:.1em;padding:9px;}
+  .btn.ghost:hover{border-color:var(--gold);background:var(--gold-soft);}
+  .btn:focus-visible{outline:2px solid var(--ao);outline-offset:2px;}
+  .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px;}
+  fieldset{border:1px solid var(--line);border-radius:11px;padding:13px 13px 3px;margin:0 0 14px;}
+  legend{font-family:var(--serif);font-size:12.5px;color:var(--gold);letter-spacing:.14em;padding:0 7px;}
+
+  /* ---------- result: oni ---------- */
+  .empty-state{
+    text-align:center;padding:56px 22px;color:var(--dim);font-size:13px;
+    border:1px dashed var(--line-strong);border-radius:14px;background:rgba(255,255,255,.012);
+  }
+  .empty-state .mark{font-family:var(--serif);font-size:44px;color:var(--line-strong);display:block;margin-bottom:12px;letter-spacing:.2em;}
+
+  .oni-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .oni-glyph{
+    width:96px;height:96px;flex:none;border-radius:16px;display:grid;place-items:center;
+    font-family:var(--serif);font-size:46px;font-weight:800;color:#F6EFE2;line-height:1;
+    box-shadow:0 0 0 1px rgba(255,255,255,.10) inset, 0 10px 30px rgba(0,0,0,.4);
+    position:relative;overflow:hidden;
+  }
+  .oni-glyph::after{content:'';position:absolute;inset:0;background:radial-gradient(60% 50% at 30% 20%,rgba(255,255,255,.22),transparent 70%);}
+  .oni-name{font-family:var(--serif);font-size:30px;font-weight:800;margin:0;letter-spacing:.1em;line-height:1.25;}
+  .oni-yomi{font-size:11.5px;color:var(--dim);letter-spacing:.24em;margin-top:2px;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .chip{
+    font-size:11px;letter-spacing:.08em;padding:3.5px 10px;border-radius:999px;
+    border:1px solid var(--line-strong);color:var(--sub);background:rgba(255,255,255,.03);
+  }
+  .chip.gold{border-color:rgba(201,162,75,.5);color:var(--gold);background:var(--gold-soft);}
+  .lead{font-family:var(--serif);font-size:15.5px;line-height:2;margin:20px 0 0;color:#DFD8CA;}
+
+  .sect{margin-top:24px;}
+  .sect > h3{
+    font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.22em;color:var(--gold);
+    margin:0 0 11px;padding-bottom:7px;border-bottom:1px solid var(--line);
+  }
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:640px){.cols2{grid-template-columns:1fr;}}
+  ul.pts{list-style:none;margin:0;padding:0;}
+  ul.pts li{position:relative;padding-left:18px;margin-bottom:7px;font-size:13px;color:#D6D0C4;}
+  ul.pts li::before{content:'—';position:absolute;left:0;color:var(--gold);}
+  ul.pts.shadow li::before{content:'—';color:var(--shu);}
+
+  /* 四柱 table */
+  table.pillars{width:100%;border-collapse:collapse;font-size:13px;}
+  table.pillars th,table.pillars td{border:1px solid var(--line);padding:8px 6px;text-align:center;}
+  table.pillars th{font-size:10.5px;letter-spacing:.14em;color:var(--dim);font-weight:600;background:rgba(255,255,255,.02);}
+  table.pillars td{font-family:var(--serif);font-size:21px;letter-spacing:.06em;color:var(--ink);}
+  table.pillars td small{display:block;font-family:var(--sans);font-size:10px;color:var(--dim);letter-spacing:.06em;margin-top:2px;}
+
+  /* 五行バー */
+  .gogyo{display:grid;gap:7px;}
+  .gogyo .g{display:grid;grid-template-columns:2.6em 1fr 2.2em;align-items:center;gap:9px;}
+  .gogyo .g .lbl{font-family:var(--serif);font-size:14px;color:var(--sub);letter-spacing:.06em;}
+  .gogyo .g .track{display:block;height:9px;border-radius:5px;background:#22272F;overflow:hidden;border:1px solid var(--line);}
+  .gogyo .g .bar{display:block;height:100%;border-radius:5px;transition:width .55s cubic-bezier(.2,.7,.3,1);}
+  .gogyo .g .num{font-size:11.5px;color:var(--dim);text-align:right;}
+
+  /* 日運 */
+  .day-box{border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:linear-gradient(160deg,rgba(201,162,75,.07),rgba(255,255,255,.012));}
+  .day-box .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+  .day-box .ttl{font-family:var(--serif);font-size:19px;letter-spacing:.1em;color:var(--gold);}
+  .day-box .sc{font-family:var(--serif);font-size:26px;color:var(--ink);}
+  .day-box .sc small{font-size:12px;color:var(--dim);margin-left:2px;}
+  .day-box p{margin:0 0 8px;font-size:13px;color:#D6D0C4;}
+  .day-box .act{font-size:12.5px;color:var(--sub);border-top:1px dashed var(--line-strong);padding-top:9px;margin-top:4px;}
+  .day-box .act b{color:var(--gold);font-weight:700;letter-spacing:.08em;}
+
+  /* ---------- 相性 ---------- */
+  .pair-head{text-align:center;padding:6px 0 4px;}
+  .pair-glyphs{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+  .pair-glyphs .oni-glyph{width:72px;height:72px;font-size:34px;border-radius:14px;}
+  .pair-link{font-family:var(--serif);font-size:12px;color:var(--gold);letter-spacing:.2em;text-align:center;}
+  .pair-link .l{display:block;font-size:26px;line-height:1;color:var(--line-strong);}
+  .pair-nm{font-family:var(--serif);font-size:14px;margin-top:7px;letter-spacing:.06em;}
+  .pair-nm small{display:block;font-family:var(--sans);font-size:10.5px;color:var(--dim);letter-spacing:.1em;margin-top:1px;}
+  .en-type{font-family:var(--serif);font-size:28px;font-weight:800;letter-spacing:.14em;margin:22px 0 4px;text-align:center;}
+  .en-sub{text-align:center;font-size:11.5px;color:var(--dim);letter-spacing:.24em;margin-bottom:18px;}
+
+  .gauge{max-width:460px;margin:0 auto;}
+  .gauge .track{display:block;height:12px;border-radius:7px;background:#22272F;border:1px solid var(--line);overflow:hidden;}
+  .gauge .bar{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#8E2C1E,#C9A24B);transition:width .7s cubic-bezier(.2,.7,.3,1);}
+  .gauge .val{display:flex;align-items:baseline;justify-content:center;gap:5px;margin-bottom:9px;}
+  .gauge .val b{font-family:var(--serif);font-size:44px;font-weight:800;line-height:1;letter-spacing:.02em;}
+  .gauge .val span{font-size:12px;color:var(--dim);letter-spacing:.18em;}
+  .gauge .scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);margin-top:5px;letter-spacing:.1em;}
+
+  .kajiwa{display:grid;gap:10px;counter-reset:kj;}
+  .kajiwa .k{
+    display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:start;
+    border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:rgba(255,255,255,.015);
+  }
+  .kajiwa .k .n{
+    font-family:var(--serif);font-size:15px;color:var(--gold);text-align:center;
+    border-right:1px solid var(--line);padding-right:8px;line-height:1.5;
+  }
+  .kajiwa .k .t{font-size:13px;color:#D6D0C4;}
+  .kajiwa .k .t b{display:block;font-family:var(--serif);font-size:14px;color:var(--ink);letter-spacing:.08em;margin-bottom:2px;font-weight:600;}
+
+  /* ---------- 記録 ---------- */
+  table.rec{width:100%;border-collapse:collapse;font-size:13px;}
+  table.rec th{font-size:10.5px;letter-spacing:.12em;color:var(--dim);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap;}
+  table.rec td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  table.rec tr:hover td{background:rgba(255,255,255,.02);}
+  table.rec .nm{font-family:var(--serif);font-size:14.5px;letter-spacing:.05em;}
+  table.rec .mini{font-size:11px;color:var(--dim);}
+  .mini-glyph{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-family:var(--serif);font-size:17px;color:#F6EFE2;flex:none;}
+  .cellflex{display:flex;align-items:center;gap:10px;}
+  .lnk{font:inherit;font-size:12px;background:none;border:none;color:var(--ao);cursor:pointer;padding:3px 6px;border-radius:6px;}
+  .lnk:hover{background:rgba(78,127,166,.14);text-decoration:underline;}
+  .lnk.del{color:var(--shu);}
+  .lnk.del:hover{background:rgba(194,66,47,.14);}
+  .empty{text-align:center;color:var(--dim);padding:34px 12px;font-size:12.5px;}
+
+  /* ---------- misc ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);
+    background:var(--surface2);border:1px solid var(--line-strong);color:var(--ink);
+    padding:11px 20px;border-radius:11px;font-size:13px;box-shadow:var(--shadow);
+    opacity:0;pointer-events:none;transition:.24s;z-index:60;letter-spacing:.04em;
+  }
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+  footer.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--dim);line-height:1.9;}
+  footer.foot b{color:var(--sub);font-weight:600;letter-spacing:.06em;}
+  [hidden]{display:none !important;}
+  .err{color:var(--shu);font-size:12px;margin-top:8px;min-height:1.2em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="seal" aria-hidden="true">鬼</div>
+      <div>
+        <div class="eyebrow">RELATION FORGE</div>
+        <h1>鬼道占術</h1>
+        <div class="tag">干支と五行で読む、本命鬼と縁の型</div>
+      </div>
+    </div>
+    <div class="today">
+      本日の日辰
+      <span class="k tnum" id="todayKanshi">—</span>
+      <span class="tnum" id="todayDate">—</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="鑑定の種類">
+    <button role="tab" id="tab-meishiki" aria-controls="pane-meishiki" aria-selected="true">鬼命鑑定</button>
+    <button role="tab" id="tab-en" aria-controls="pane-en" aria-selected="false">縁の鍛冶</button>
+    <button role="tab" id="tab-rec" aria-controls="pane-rec" aria-selected="false">鑑定の記録</button>
+  </nav>
+
+  <!-- ============ 鬼命鑑定 ============ -->
+  <section id="pane-meishiki" role="tabpanel" aria-labelledby="tab-meishiki">
+    <div class="grid">
+      <div class="card">
+        <div class="hd"><h2>生年月日を立てる</h2></div>
+        <div class="bd">
+          <form id="formOne" autocomplete="off">
+            <div class="field">
+              <label for="oneName">お名前（任意）</label>
+              <input id="oneName" type="text" maxlength="24" placeholder="例：一ノ瀬 灯">
+            </div>
+            <div class="field">
+              <label for="oneDate">生年月日</label>
+              <input id="oneDate" type="date" min="1900-01-01" max="2100-12-31" required>
+              <div class="hint">節入り（立春・啓蟄など）で年柱・月柱が切り替わります。</div>
+            </div>
+            <div class="field">
+              <label for="oneTime">生まれた時刻（任意）</label>
+              <input id="oneTime" type="time">
+              <div class="hint">入力すると時柱を加えて五行の偏りをより細かく読みます。</div>
+            </div>
+            <button class="btn" type="submit">命 式 を 立 て る</button>
+            <div class="btn-row">
+              <button class="btn ghost" type="button" id="oneSave">記録に残す</button>
+              <button class="btn ghost" type="button" id="oneCopy">結果を写す</button>
+            </div>
+            <p class="err" id="oneErr" role="status"></p>
+          </form>
+        </div>
+      </div>
+
+      <div id="oneResult">
+        <div class="empty-state">
+          <span class="mark" aria-hidden="true">占</span>
+          生年月日を入れて「命式を立てる」を押すと、<br>あなたを司る本命鬼が現れます。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 縁の鍛冶 ============ -->
+  <section id="pane-en" role="tabpanel" aria-labelledby="tab-en" hidden>
+    <div class="grid">
+      <div class="card">
+        <div class="hd"><h2>二人の縁を鍛える</h2></div>
+        <div class="bd">
+          <form id="formPair" autocomplete="off">
+            <fieldset>
+              <legend>甲 の 人</legend>
+              <div class="field">
+                <label for="pA-name">お名前（任意）</label>
+                <input id="pA-name" type="text" maxlength="24" placeholder="例：一ノ瀬 灯">
+              </div>
+              <div class="field">
+                <label for="pA-date">生年月日</label>
+                <input id="pA-date" type="date" min="1900-01-01" max="2100-12-31" required>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>乙 の 人</legend>
+              <div class="field">
+                <label for="pB-name">お名前（任意）</label>
+                <input id="pB-name" type="text" maxlength="24" placeholder="例：桐生 環">
+              </div>
+              <div class="field">
+                <label for="pB-date">生年月日</label>
+                <input id="pB-date" type="date" min="1900-01-01" max="2100-12-31" required>
+              </div>
+            </fieldset>
+            <div class="field">
+              <label for="pRel">縁の種類</label>
+              <select id="pRel">
+                <option value="love">恋愛・伴侶</option>
+                <option value="work">仕事・共同</option>
+                <option value="friend">友愛・仲間</option>
+                <option value="family">家族・血縁</option>
+              </select>
+            </div>
+            <button class="btn" type="submit">縁 を 鍛 え る</button>
+            <div class="btn-row">
+              <button class="btn ghost" type="button" id="pairSwap">甲乙を入替</button>
+              <button class="btn ghost" type="button" id="pairCopy">結果を写す</button>
+            </div>
+            <p class="err" id="pairErr" role="status"></p>
+          </form>
+        </div>
+      </div>
+
+      <div id="pairResult">
+        <div class="empty-state">
+          <span class="mark" aria-hidden="true">縁</span>
+          二人の生年月日から、支合・三合・対冲などの<br>「縁の型」を見立てて鍛え方をお伝えします。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 記録 ============ -->
+  <section id="pane-rec" role="tabpanel" aria-labelledby="tab-rec" hidden>
+    <div class="card">
+      <div class="hd">
+        <h2>鑑定の記録</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="note" id="recCount">0 件</span>
+          <button class="lnk del" type="button" id="recClear">すべて消す</button>
+        </div>
+      </div>
+      <div class="bd" style="padding:6px 10px 10px;">
+        <table class="rec">
+          <thead>
+            <tr><th>本命鬼</th><th>生年月日</th><th>四柱</th><th style="text-align:right;">操作</th></tr>
+          </thead>
+          <tbody id="recBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px;">記録はこの端末のブラウザ内（localStorage）にのみ保存されます。サーバーへは送信されません。</p>
+  </section>
+
+  <footer class="foot">
+    <b>鬼道占術について</b><br>
+    本アプリは十干十二支・五行（木火土金水）・陰陽の関係、ならびに三合・支合・対冲・相刑・相害・相破という
+    十二支の古典的な組み合わせにもとづき、生年月日から「本命鬼」と「縁の型」を導きます。
+    年柱・月柱は節入り日の近似値（立春二月四日ごろ等）で切り替え、時柱は早子時法を用いています。
+    結果は娯楽・自己内省のための読み物であり、医療・法律・投資その他の専門的判断の代わりにはなりません。
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   鬼道占術 — 暦法（干支の算出）
+   ===================================================================== */
+const STEM   = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const BRANCH = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const BRANCH_YOMI = ['ね','うし','とら','う','たつ','み','うま','ひつじ','さる','とり','いぬ','い'];
+const EL = ['木','火','土','金','水'];
+const EL_HEX = ['#4F8A6B','#C2422F','#C9A24B','#B9BCC4','#4E7FA6'];
+const STEM_EL   = [0,0,1,1,2,2,3,3,4,4];              // 甲乙木 丙丁火 戊己土 庚辛金 壬癸水
+const STEM_YY   = [1,0,1,0,1,0,1,0,1,0];              // 1=陽 0=陰
+const BRANCH_EL = [4,2,0,0,2,1,1,2,3,3,2,4];          // 子水 丑土 寅卯木 辰土 巳午火 未土 申酉金 戌土 亥水
+const BRANCH_YY = [1,0,1,0,1,0,1,0,1,0,1,0];
+/* 節入り日の近似値（各月の節の日）: 小寒6 立春4 啓蟄6 清明5 立夏6 芒種6 小暑7 立秋8 白露8 寒露8 立冬7 大雪7 */
+const SETSU = [0,6,4,6,5,6,6,7,8,8,8,7,7];
+
+function jdn(y,m,d){
+  const a=Math.floor((14-m)/12), yy=y+4800-a, mm=m+12*a-3;
+  return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;
+}
+/* 生年月日（と時刻）から四柱を組む */
+function meishiki(y,m,d,hour){
+  // 節月とその開始年
+  let sm,sy;
+  if(d>=SETSU[m]){ sm=m; sy=y; } else { sm=m-1; sy=y; if(sm===0){ sm=12; sy=y-1; } }
+  const monthBranch = sm%12;                                   // 寅月=2 … 子月=0 丑月=1
+  const pillarYear  = sm>=2 ? sy : sy-1;                       // 立春をもって年柱が改まる
+  const yearIdx     = ((pillarYear-4)%60+60)%60;
+  const yearStem    = yearIdx%10, yearBranch = yearIdx%12;
+  const fromTora    = ((monthBranch-2)%12+12)%12;
+  const monthStem   = ((yearStem%5)*2+2+fromTora)%10;
+  const dayIdx      = ((jdn(y,m,d)+49)%60+60)%60;
+  const dayStem     = dayIdx%10, dayBranch = dayIdx%12;
+  const p = {
+    year :{s:yearStem , b:yearBranch },
+    month:{s:monthStem, b:monthBranch},
+    day  :{s:dayStem  , b:dayBranch  },
+    hour : null,
+    solarMonth: sm, pillarYear
+  };
+  if(hour!==null&&hour!==undefined&&hour!==''){
+    const h = parseInt(String(hour).slice(0,2),10);
+    if(!isNaN(h)){
+      const hb = Math.floor(((h+1)%24)/2);                     // 23:00–00:59 を子時とする（早子時法）
+      p.hour = {s:((dayStem%5)*2+hb)%10, b:hb};
+    }
+  }
+  return p;
+}
+const kanshi = p => STEM[p.s]+BRANCH[p.b];
+function dayKanshiOf(dt){
+  const i=((jdn(dt.getFullYear(),dt.getMonth()+1,dt.getDate())+49)%60+60)%60;
+  return {s:i%10,b:i%12};
+}
+
+/* =====================================================================
+   十二鬼
+   ===================================================================== */
+const ONI = [
+{b:0,name:'幽泉鬼',yomi:'ゆうせんき',glyph:'泉',
+ keys:['潜行','察知','機微'],
+ nature:'夜の水脈のように、人の心の底を音もなく流れる質。まだ言葉になっていない気配を先に掴み、場が傾く前に身をかわせる。表向きは静かでも、内側では絶えず情報が巡っている。',
+ str:['言外の意図を読み取る','環境が変わっても濁らない','ひとつの縁を長く保つ'],
+ sha:['溜め込みすぎて澱む','本音を最後まで出さない','察しすぎて先回りが過ぎる'],
+ dir:'北',cn:'漆黒',num:1,item:'黒曜石'},
+{b:1,name:'磐牛鬼',yomi:'ばんぎゅうき',glyph:'磐',
+ keys:['蓄積','忍耐','地固め'],
+ nature:'岩盤を一寸ずつ削るように、時間を味方につけて積み上げる質。速さでは競わないが、三年五年の単位で見れば誰よりも遠くまで運んでいる。任された荷を途中で下ろさない。',
+ str:['始めたことを終いまで運ぶ','土台と仕組みを整える','逆風下でも崩れない'],
+ sha:['抱え込んで動けなくなる','方針転換が遅れる','無理を口に出さない'],
+ dir:'北北東',cn:'土黄',num:2,item:'瑪瑙'},
+{b:2,name:'烈炎鬼',yomi:'れつえんき',glyph:'炎',
+ keys:['突破','気概','先陣'],
+ nature:'まだ誰も踏んでいない場所に、真っ先に足跡をつける質。理より先に身体が動き、その熱が周りの迷いを焼き払う。始まりの場面でこそ真価が出る。',
+ str:['ゼロから旗を立てる','窮地で恐れずに前へ出る','人を巻き込んで熱を移す'],
+ sha:['勢いのまま燃え尽きる','細部の詰めを飛ばす','退き際を見誤る'],
+ dir:'東北東',cn:'緋',num:3,item:'虎目石'},
+{b:3,name:'月兎鬼',yomi:'げっとき',glyph:'月',
+ keys:['和合','繁茂','機微な優しさ'],
+ nature:'春の草が隙間を埋めて伸びるように、人と人の間をやわらかく繋ぐ質。角を立てずに輪を広げ、居心地のよい場をいつのまにか作っている。細やかな配慮が身についている。',
+ str:['敵を作らず縁を増やす','小さな変化に気づく','場の空気を整える'],
+ sha:['断れずに背負い込む','決断を人に預ける','傷ついても平気な顔をする'],
+ dir:'東',cn:'若草',num:4,item:'翡翠'},
+{b:4,name:'蒼龍鬼',yomi:'そうりゅうき',glyph:'龍',
+ keys:['変転','飛躍','霊感'],
+ nature:'雲を得て一気に天へ昇る質。平時は掴みどころがないが、機が満ちた瞬間に常識ごと跳び越える。理屈より先に「そうなる」という確信が降りてくる。',
+ str:['潮目を読んで大きく動く','枠外の発想を持ち込む','非常時に強い'],
+ sha:['気分の波が大きい','日常の反復を軽んじる','説明を省いて誤解される'],
+ dir:'東南東',cn:'群青',num:5,item:'水晶'},
+{b:5,name:'白蛇鬼',yomi:'はくじゃき',glyph:'蛇',
+ keys:['執心','智慧','再生'],
+ nature:'脱皮をくり返して姿を新たにする質。ひとつの対象を深く掘り、余人の届かない層まで到達する。表情を変えずに、内では緻密な計算が進んでいる。',
+ str:['一点を極めるまで離さない','静かに情勢を分析する','痛手から立て直す'],
+ sha:['執着が疑いに変わる','抱えた恨みを忘れない','距離を測りすぎて孤立する'],
+ dir:'南南東',cn:'白練',num:6,item:'真珠'},
+{b:6,name:'焔馬鬼',yomi:'えんばき',glyph:'焔',
+ keys:['顕現','疾走','陽気'],
+ nature:'真昼の火のように、居るだけで場所が明るくなる質。感じたことがそのまま表に出るぶん裏がなく、人に安心と勢いを与える。走りながら考えるほうが速い。',
+ str:['場を明るく引っ張る','決断が速い','人望が集まりやすい'],
+ sha:['熱が冷めるのも速い','言葉が先走る','独りの時間に弱い'],
+ dir:'南',cn:'朱',num:7,item:'紅玉'},
+{b:7,name:'沙羊鬼',yomi:'さようき',glyph:'羊',
+ keys:['情愛','調停','美'],
+ nature:'荒れた地にも草を敷くように、人の傷んだところへ静かに寄り添う質。対立の間に立って角を丸め、美しいもの・心地よいものを見分ける目を持つ。',
+ str:['人の痛みを察して支える','争いを収める','美意識で場を整える'],
+ sha:['情に流されて損を被る','断りきれず疲れる','決断を先延ばしにする'],
+ dir:'南南西',cn:'桜',num:8,item:'珊瑚'},
+{b:8,name:'金猿鬼',yomi:'きんえんき',glyph:'猿',
+ keys:['才略','変幻','交渉'],
+ nature:'手数と機転で局面を変える質。同じ問いに三通りの答えを用意でき、行き止まりを行き止まりと思わない。人の間を軽やかに渡り、話をまとめる。',
+ str:['要領よく成果を出す','人脈を結び直す','退屈を成長に変える'],
+ sha:['器用さに頼って浅くなる','飽きて途中で乗り換える','本音を茶化して隠す'],
+ dir:'西南西',cn:'金',num:9,item:'黄水晶'},
+{b:9,name:'鋭羽鬼',yomi:'えいうき',glyph:'羽',
+ keys:['精査','けじめ','審美'],
+ nature:'刃を研ぐように、曖昧なところを削ぎ落として形を整える質。数字も約束も帳尻を合わせずにはいられない。身だしなみと段取りに人柄が出る。',
+ str:['誤りを見逃さない','約束と時間を守る','質を最後まで落とさない'],
+ sha:['他人にも厳しさを求める','正しさで人を追い詰める','完璧を待って動けない'],
+ dir:'西',cn:'白銀',num:10,item:'水晶柱'},
+{b:10,name:'守戌鬼',yomi:'しゅじゅつき',glyph:'守',
+ keys:['守護','義','信頼'],
+ nature:'門の前に座り、預かったものを守り抜く質。理屈より筋を重んじ、一度味方と決めた相手は状況が変わっても手放さない。頼られるほど強くなる。',
+ str:['信頼を裏切らない','弱い立場の側に立つ','危険をいち早く警告する'],
+ sha:['敵味方を分けすぎる','警戒心が壁になる','自分の弱さを見せられない'],
+ dir:'西北西',cn:'焦茶',num:11,item:'黒瑪瑙'},
+{b:11,name:'猛猪鬼',yomi:'もうちょき',glyph:'猪',
+ keys:['直進','純度','捨身'],
+ nature:'狙いを定めたら脇目も振らず突き抜ける質。裏表がなく、損得より納得で動く。まっすぐさが人の胸を打ち、思いがけない助けを呼び込む。',
+ str:['一度決めたら迷わない','嘘や駆け引きをしない','土壇場で腹をくくれる'],
+ sha:['視野が狭くなる','引き返す判断が遅い','裏を読まれて損をする'],
+ dir:'北北西',cn:'紺',num:12,item:'ラピスラズリ'}
+];
+const oniOf = b => ONI[b];
+const oniEl = o => BRANCH_EL[o.b];
+const oniYY = o => BRANCH_YY[o.b];
+
+/* =====================================================================
+   十二支の組み合わせ（縁の型）
+   ===================================================================== */
+const SANGO = [[8,0,4],[11,3,7],[2,6,10],[5,9,1]];              // 申子辰・亥卯未・寅午戌・巳酉丑
+const SANGO_NAME = ['水局','木局','火局','金局'];
+const SHIGO = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];          // 子丑・寅亥・卯戌・辰酉・巳申・午未
+const KEI   = [[2,5],[5,8],[2,8],[1,10],[10,7],[1,7],[0,3]];    // 寅巳申・丑戌未・子卯
+const GAI   = [[0,7],[1,6],[2,5],[3,4],[8,11],[9,10]];          // 六害
+const HA    = [[0,9],[3,6],[1,4],[7,10],[2,11],[5,8]];          // 六破
+const inPair = (t,a,b) => t.some(p => (p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
+
+function branchRelation(a,b){
+  if(a===b) return 'hiwa';
+  for(let i=0;i<SANGO.length;i++) if(SANGO[i].includes(a)&&SANGO[i].includes(b)) return 'sango';
+  if(inPair(SHIGO,a,b)) return 'shigo';
+  if(Math.abs(a-b)===6)  return 'chu';
+  if(inPair(KEI,a,b))    return 'kei';
+  if(inPair(GAI,a,b))    return 'gai';
+  if(inPair(HA,a,b))     return 'ha';
+  return 'hei';
+}
+const REL = {
+  sango:{t:'三合の縁',sub:'GOURIKI — 合力',base:92,
+    d:'十二支のうち三つで一つの局を成す、もっとも力の合う組み合わせです。目指す方向が最初から揃っているため、説明しなくても意図が通じ、二人でいるときだけ出せる力が生まれます。',
+    ph:['話が早く、決めごとが滞らない','片方の弱点をもう片方が自然に補う','周囲から「組ませると強い」と見られる'],
+    fg:[['役割を先に分ける','息が合うぶん両方が同じ場所を耕しがちです。担当を言葉にして分けると、力が二倍でなく三倍になります。'],
+        ['第三の視点を招く','似た判断をする二人です。折々に外の意見を入れて、思い込みの共鳴を防いでください。'],
+        ['当たり前を口に出す','通じ合う関係ほど礼が省かれます。感謝を言葉にした回数が、この縁の寿命を決めます。']],
+    ctx:{love:'恋愛では、出会って間もなく「前から知っていた」と感じる縁です。',
+         work:'仕事では、長期の共同事業や創業に向く並びです。',
+         friend:'友愛では、間が空いても関係が痩せない縁です。',
+         family:'家族では、家の方針を共に担える並びです。'}},
+  shigo:{t:'支合の縁',sub:'MUTSUBI — 睦合',base:88,
+    d:'二支が結び合って離れがたくなる、親密さの縁です。性質は異なるのに互いの欠けを埋め合い、一緒にいる時間そのものが二人を落ち着かせます。',
+    ph:['一緒にいると呼吸が整う','違いが不満でなく面白さになる','離れると調子が狂う'],
+    fg:[['依存と親密を分ける','心地よさに沈むと世界が二人だけになります。それぞれの持ち場を保ってください。'],
+        ['決断は交互に','譲り合いが続くと決まりません。今回はどちらが決めるかを先に決めておくこと。'],
+        ['小さな不満を先に出す','この縁は不満を溜めると一気に切れます。小さな違和感のうちに言葉にしてください。']],
+    ctx:{love:'恋愛では、腐れ縁になりやすいほど結びつきの強い並びです。',
+         work:'仕事では、二人一組の現場で真価が出ます。',
+         friend:'友愛では、互いの家に上がり込むような近さになります。',
+         family:'家族では、言わずとも通じる情の濃い並びです。'}},
+  chu:{t:'対冲の縁',sub:'KAGAMI — 鏡合',base:62,
+    d:'十二支の正面に立つ、真向かいの縁です。価値観が反対に振れているぶん衝突もしますが、相手は自分に欠けたものをそっくり持っています。ぶつかるほどに互いが鍛えられる、鏡のような関係です。',
+    ph:['同じ話題で正反対の結論が出る','短期は刺激、長期は忍耐が要る','相手を通して自分の癖が見える'],
+    fg:[['勝ち負けにしない','正しさを競うと必ず片方が折れます。「違う」で止めて、そこから先へ進まないこと。'],
+        ['距離を設計する','近づきすぎると火花が散ります。会う頻度と踏み込まない領域を決めておくと長持ちします。'],
+        ['相手の反対意見を採る回数を決める','年に何度かは相手の言い分に丸ごと乗ってみること。この縁はそこで初めて力に変わります。']],
+    ctx:{love:'恋愛では、強く惹かれて激しく揉める並びです。',
+         work:'仕事では、意見の対立が案を鍛える相方になります。',
+         friend:'友愛では、遠慮なく本音を言える貴重な相手です。',
+         family:'家族では、世代や立場の違いが出やすい並びです。'}},
+  hiwa:{t:'比和の縁',sub:'AIUTSUSHI — 相似',base:76,
+    d:'同じ支を持つ、写し身のような縁です。感じ方も傷つく場所もよく似ているため理解は早く、そのぶん同じ穴に一緒に落ちます。相手を見ることが、そのまま自分を見ることになります。',
+    ph:['説明しなくても分かってもらえる','長所も短所も二倍に増幅する','相手の欠点が自分の急所に触る'],
+    fg:[['違う道具を持つ','同じ強みを重ねても厚くなるだけです。片方が新しい技を持つと、途端に広がります。'],
+        ['苦手を外注する','二人とも苦手なことは、頑張らずに人に頼むのが正解です。'],
+        ['相手に見る欠点を自分で直す','気に障る点は自分の写しです。指摘より先に、自分の側で直してください。']],
+    ctx:{love:'恋愛では、安心と停滞が同居しやすい並びです。',
+         work:'仕事では、同じ専門を持つ同志になります。',
+         friend:'友愛では、説明のいらない気楽な相手です。',
+         family:'家族では、似た者同士の情と摩擦が出ます。'}},
+  kei:{t:'相刑の縁',sub:'KITAE — 試練',base:47,
+    d:'互いを削り合いながら形を与える、鍛錬の縁です。楽ではありませんが、この相手といる期間に人は最も変わります。取り決めを曖昧にすると角が立ち、明確にすると急に噛み合います。',
+    ph:['言葉の選び方ひとつで揉める','関わるほど互いの未熟さが露わになる','乗り越えた後は強い信頼が残る'],
+    fg:[['約束を文字にする','口約束が誤解の火種です。金銭・期限・役割は必ず記録に残してください。'],
+        ['感情の高いときに決めない','一晩置く決まりを二人で持つこと。翌朝には別の答えが出ています。'],
+        ['第三者を間に置く','直に当たると削れます。共通の信頼できる人を一人挟むと安定します。']],
+    ctx:{love:'恋愛では、情の深さと苦しさが同時に来る並びです。',
+         work:'仕事では、契約と役割を明文化すれば十分に組めます。',
+         friend:'友愛では、距離感を誤ると急に疎遠になります。',
+         family:'家族では、期待のかけ方が課題になります。'}},
+  gai:{t:'相害の縁',sub:'SURECHIGAI — 擦れ',base:52,
+    d:'悪意はないのに、なぜか噛み合わない擦れ違いの縁です。善意の方向がわずかにずれているため、尽くすほど的を外します。相手の求めを推測せず、確かめることで一気に楽になります。',
+    ph:['よかれと思った行動が空回りする','伝えたつもりが伝わっていない','小さな行き違いが積もる'],
+    fg:[['察しをやめて訊く','この縁で推測は毒です。「何をしてほしいか」を毎回訊いてください。'],
+        ['期待値を低く始める','初めから多くを望まないほど、この関係は長く続きます。'],
+        ['得意分野で関わる','雑多に関わると擦れます。目的を絞った付き合いが最も上手くいきます。']],
+    ctx:{love:'恋愛では、愛情表現のかたちが食い違いやすい並びです。',
+         work:'仕事では、報連相の頻度を上げると解決します。',
+         friend:'友愛では、深入りしないほど良縁になります。',
+         family:'家族では、価値観の前提を確かめ合う必要があります。'}},
+  ha:{t:'相破の縁',sub:'YURAGI — 破調',base:58,
+    d:'形になりかけたものが、ふとした拍子に崩れる縁です。悪縁ではなく、古い型を壊して組み直すための取り合わせ。惜しまずに壊せる人ほど、この縁から多くを得ます。',
+    ph:['計画が途中で作り直しになる','関係の形が何度か変わる','別れたはずが再び繋がる'],
+    fg:[['計画に余白を持つ','予定通りに進まない前提で組むと、崩れが痛手になりません。'],
+        ['形式を先に決める','関係の名前と範囲を都度言葉にすると、揺らぎが減ります。'],
+        ['壊れた後を見届ける','この縁は再構築の段で本領が出ます。一度の崩れで手を離さないこと。']],
+    ctx:{love:'恋愛では、別れと復縁を繰り返しやすい並びです。',
+         work:'仕事では、企画の作り直しが実りを生みます。',
+         friend:'友愛では、離れては戻る縁になります。',
+         family:'家族では、住まいや役割の変化が続きます。'}},
+  hei:{t:'淡交の縁',sub:'TANKOU — 淡交',base:70,
+    d:'特別な合も冲もない、澄んだ水のような縁です。放っておけば静かに離れ、手をかければ確かに育ちます。相性の型に頼れないぶん、二人の行いがそのまま結果になります。',
+    ph:['自然体で無理なく付き合える','関わりが減ると疎遠になりやすい','衝突も依存も起きにくい'],
+    fg:[['会う口実を仕組みにする','この縁は放置に弱いだけです。定期的に会う理由を作ってください。'],
+        ['共同の目標を一つ持つ','一緒に取り組む対象があると、途端に濃い縁に変わります。'],
+        ['期待ではなく実績で信じる','型の後押しがないぶん、積み重ねた事実が信頼になります。']],
+    ctx:{love:'恋愛では、穏やかに時間をかけて育つ並びです。',
+         work:'仕事では、公私を分けた実務的な関係が向きます。',
+         friend:'友愛では、心地よい距離が保てます。',
+         family:'家族では、互いを尊重した淡い情が続きます。'}}
+};
+
+/* 五行の相生・相剋 */
+const SHO  = [1,2,3,4,0];   // 木生火 火生土 土生金 金生水 水生木
+const KOKU = [2,3,4,0,1];   // 木剋土 火剋金 土剋水 金剋木 水剋火
+function elementRelation(a,b){
+  if(a===b) return {k:'hiwa',d:`同じ${EL[a]}の気を持ち、感覚の物差しが揃っています。`,mod:4};
+  if(SHO[a]===b)  return {k:'sho',d:`${EL[a]}が${EL[b]}を生む流れ。甲の人が乙の人を後押しする働きです。`,mod:8};
+  if(SHO[b]===a)  return {k:'sho',d:`${EL[b]}が${EL[a]}を生む流れ。乙の人が甲の人を後押しする働きです。`,mod:8};
+  if(KOKU[a]===b) return {k:'koku',d:`${EL[a]}が${EL[b]}を剋する流れ。甲の人の言い分が乙の人を締めつけがちです。`,mod:-8};
+  return {k:'koku',d:`${EL[b]}が${EL[a]}を剋する流れ。乙の人の言い分が甲の人を締めつけがちです。`,mod:-8};
+}
+
+/* =====================================================================
+   鑑定ロジック
+   ===================================================================== */
+/* 五行バランス（四柱の干支から算出） */
+function gogyoBalance(p){
+  const c=[0,0,0,0,0];
+  const add=(pi)=>{ if(!pi) return; c[STEM_EL[pi.s]]++; c[BRANCH_EL[pi.b]]++; };
+  add(p.year); add(p.month); add(p.day); add(p.hour);
+  const total=c.reduce((s,n)=>s+n,0)||1;
+  const max=Math.max(...c);
+  return {c,total,max,
+    strong:c.map((n,i)=>({n,i})).filter(o=>o.n===max).map(o=>EL[o.i]),
+    lack:  c.map((n,i)=>({n,i})).filter(o=>o.n===0 ).map(o=>EL[o.i])};
+}
+/* 日運（本命鬼と当日の日辰の関係） */
+const DAY_TXT = {
+  sango:['気が合力する日','思っていた方向へ物事が素直に進みます。人の助けが向こうからやって来るので、遠慮せず声をかけてよい一日です。','人に頼みごとをする'],
+  shigo:['縁が睦む日','人との距離が縮まりやすい日。長く連絡していない相手ほど、今日の一言が効きます。','疎遠な相手に連絡する'],
+  hiwa :['地力が満ちる日','自分の得意がそのまま通る日。新しいことより、いま抱えている仕事を仕上げるのに向きます。','やりかけを一つ終わらせる'],
+  chu  :['気が向かい合う日','予定が反転しやすい日。逆風に見えて、実は要らないものが外れていきます。押し返さず流れを見ること。','即答を避けて一晩置く'],
+  kei  :['気が削れる日','言葉のかどが立ちやすい日。約束ごとは口頭で済ませず、記録に残しておくと後が楽になります。','大事な話は文字で残す'],
+  gai  :['気が擦れる日','善意が空回りしやすい日。察して動くより、相手に直接たずねるほうが早く片づきます。','推測せずに確認する'],
+  ha   :['気が揺らぐ日','形が崩れて組み直しになりやすい日。予定に余白を残しておけば、崩れがそのまま好機になります。','予定を詰めすぎない']
+};
+DAY_TXT.hei = ['気が澄む日','大きな波のない静かな日。整える・片づける・書き出すといった、日頃できないことに向いています。','身の回りを整える'];
+const DAY_SCORE = {sango:92,shigo:86,hiwa:78,hei:70,ha:60,chu:55,gai:50,kei:46};
+
+function dayFortune(dayBranch, dayStem, today){
+  const t = dayKanshiOf(today);
+  const r = branchRelation(dayBranch, t.b);
+  const er = elementRelation(STEM_EL[dayStem], STEM_EL[t.s]);
+  let sc = DAY_SCORE[r] + (er.k==='sho'?6:er.k==='hiwa'?3:-6);
+  sc = Math.max(12, Math.min(99, sc));
+  const [ttl, body, act] = DAY_TXT[r];
+  return {kanshi:kanshi(t), rel:r, score:sc, title:ttl, body, act};
+}
+/* 相性鑑定 */
+function affinity(pa, pb, ctx){
+  const oa=oniOf(pa.day.b), ob=oniOf(pb.day.b);
+  const rk=branchRelation(pa.day.b, pb.day.b);
+  const rel=REL[rk];
+  const er=elementRelation(STEM_EL[pa.day.s], STEM_EL[pb.day.s]);
+  const yy = STEM_YY[pa.day.s]!==STEM_YY[pb.day.s];
+  let sc = rel.base + er.mod + (yy?5:-2);
+  sc = Math.max(8, Math.min(99, sc));
+  let sango='';
+  for(let i=0;i<SANGO.length;i++){
+    if(SANGO[i].includes(pa.day.b)&&SANGO[i].includes(pb.day.b)){
+      const miss=SANGO[i].find(b=>b!==pa.day.b&&b!==pb.day.b);
+      sango=`${SANGO_NAME[i]}（${SANGO[i].map(b=>BRANCH[b]).join('')}）を成す組で、欠けている${BRANCH[miss]}の性質を持つ人が加わると、三人で大きな力になります。`;
+      break;
+    }
+  }
+  return {oa,ob,rk,rel,er,yy,score:sc,sango,ctxLine:rel.ctx[ctx]};
+}
+
+/* =====================================================================
+   描画
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const glyphStyle=o=>`background:linear-gradient(150deg,${EL_HEX[oniEl(o)]},${shade(EL_HEX[oniEl(o)],-38)});`;
+function shade(hex,pct){
+  const n=parseInt(hex.slice(1),16);
+  const f=(v)=>Math.max(0,Math.min(255,Math.round(v+v*pct/100)));
+  return '#'+[f(n>>16&255),f(n>>8&255),f(n&255)].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function pillarsTable(p){
+  const cols=[['年 柱',p.year],['月 柱',p.month],['日 柱',p.day]];
+  if(p.hour) cols.push(['時 柱',p.hour]);
+  return `<table class="pillars"><thead><tr>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead>
+    <tbody><tr>${cols.map(c=>`<td>${kanshi(c[1])}<small>${EL[STEM_EL[c[1].s]]}・${EL[BRANCH_EL[c[1].b]]}</small></td>`).join('')}</tr></tbody></table>`;
+}
+function gogyoBars(g){
+  return `<div class="gogyo">`+g.c.map((n,i)=>{
+    const w=Math.round(n/Math.max(1,g.max)*100);
+    return `<div class="g"><span class="lbl">${EL[i]}</span>
+      <span class="track"><span class="bar" style="width:${w}%;background:${EL_HEX[i]};"></span></span>
+      <span class="num tnum">${n}</span></div>`;
+  }).join('')+`</div>`;
+}
+
+function renderOne(st){
+  const {name,date,time,p}=st;
+  const o=oniOf(p.day.b), g=gogyoBalance(p), df=dayFortune(p.day.b,p.day.s,new Date());
+  const el=oniEl(o), yy=oniYY(o)?'陽':'陰';
+  const trio=SANGO.find(t=>t.includes(o.b))||[];
+  const partners=trio.filter(b=>b!==o.b).map(b=>oniOf(b).name);
+  const shigoB=(SHIGO.find(pr=>pr.includes(o.b))||[]).find(b=>b!==o.b);
+
+  $('oneResult').innerHTML = `
+  <div class="card"><div class="bd">
+    <div class="oni-head">
+      <div class="oni-glyph" style="${glyphStyle(o)}" aria-hidden="true">${o.glyph}</div>
+      <div>
+        <div class="oni-yomi">${name?esc(name)+' の本命鬼':'本 命 鬼'}</div>
+        <h2 class="oni-name">${o.name}</h2>
+        <div class="oni-yomi">${o.yomi}</div>
+        <div class="chips">
+          <span class="chip gold">日柱 ${kanshi(p.day)}</span>
+          <span class="chip">${BRANCH[o.b]}（${BRANCH_YOMI[o.b]}）</span>
+          <span class="chip">五行 ${EL[el]}</span>
+          <span class="chip">${yy}</span>
+          ${o.keys.map(k=>`<span class="chip">${k}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+    <p class="lead">${o.nature}</p>
+
+    <div class="sect">
+      <h3>四 柱</h3>
+      ${pillarsTable(p)}
+      <p style="font-size:11.5px;color:var(--dim);margin:9px 0 0;">
+        ${date.replace('-','年').replace('-','月')}日${time?` ${time}`:''}　／　${p.pillarYear}年（${kanshi(p.year)}年）${BRANCH[p.month.b]}月の生まれ。本命鬼は日柱の十二支から立てます。
+      </p>
+    </div>
+
+    <div class="sect cols2">
+      <div>
+        <h3>そなわる力</h3>
+        <ul class="pts">${o.str.map(s=>`<li>${s}</li>`).join('')}</ul>
+      </div>
+      <div>
+        <h3>陥りやすい癖</h3>
+        <ul class="pts shadow">${o.sha.map(s=>`<li>${s}</li>`).join('')}</ul>
+      </div>
+    </div>
+
+    <div class="sect">
+      <h3>五 行 の 偏 り</h3>
+      ${gogyoBars(g)}
+      <p style="font-size:12.5px;color:#D6D0C4;margin:11px 0 0;">
+        ${EL[el]}を本性としつつ、命式では<b style="color:var(--gold);font-weight:700;">${g.strong.join('・')}</b>の気が最も強く出ています。
+        ${g.lack.length?`一方で<b style="color:var(--shu);font-weight:700;">${g.lack.join('・')}</b>の気を持たないため、その性質を持つ人・場所・習慣を意識して取り入れると釣り合いが取れます。`:'五行すべてが揃った、偏りの少ない命式です。どの相手とも噛み合いやすい反面、突出した色が出にくい面があります。'}
+      </p>
+    </div>
+
+    <div class="sect cols2">
+      <div>
+        <h3>守 り の 一 覧</h3>
+        <ul class="pts">
+          <li>吉方位 — ${o.dir}</li>
+          <li>守り色 — ${o.cn}</li>
+          <li>数 — ${o.num}</li>
+          <li>守り石 — ${o.item}</li>
+        </ul>
+      </div>
+      <div>
+        <h3>縁 の 深 い 鬼</h3>
+        <ul class="pts">
+          <li>三合 — ${partners.join('、')}</li>
+          <li>支合 — ${oniOf(shigoB).name}</li>
+          <li>対冲 — ${oniOf((o.b+6)%12).name}（鍛えの相手）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sect">
+      <h3>今 日 の 気 配</h3>
+      <div class="day-box">
+        <div class="top">
+          <span class="ttl">${df.title}</span>
+          <span class="sc tnum">${df.score}<small>／100</small></span>
+        </div>
+        <p>${df.body}</p>
+        <div class="act">本日の日辰 <b>${df.kanshi}</b>　／　開運の一手 — <b>${df.act}</b></div>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function renderPair(st){
+  const a=affinity(st.pa,st.pb,st.ctx);
+  const nmA=st.nameA||'甲の人', nmB=st.nameB||'乙の人';
+  const yyTxt = a.yy
+    ? '日干が陰陽に分かれており、役割が自然に振り分かれます。同じ場所で張り合うことが少ない組です。'
+    : '日干の陰陽が同じで、進み方の癖がよく似ています。意見が揃うぶん、二人とも同じ死角を持ちます。';
+
+  $('pairResult').innerHTML = `
+  <div class="card"><div class="bd">
+    <div class="pair-head">
+      <div class="pair-glyphs">
+        <div>
+          <div class="oni-glyph" style="${glyphStyle(a.oa)}" aria-hidden="true">${a.oa.glyph}</div>
+          <div class="pair-nm">${a.oa.name}<small>${esc(nmA)}</small></div>
+        </div>
+        <div class="pair-link"><span class="l" aria-hidden="true">◇</span>縁</div>
+        <div>
+          <div class="oni-glyph" style="${glyphStyle(a.ob)}" aria-hidden="true">${a.ob.glyph}</div>
+          <div class="pair-nm">${a.ob.name}<small>${esc(nmB)}</small></div>
+        </div>
+      </div>
+      <div class="en-type">${a.rel.t}</div>
+      <div class="en-sub">${a.rel.sub}</div>
+      <div class="gauge">
+        <div class="val"><b class="tnum">${a.score}</b><span>ENISHI</span></div>
+        <div class="track"><span class="bar" style="width:${a.score}%"></span></div>
+        <div class="scale"><span>淡</span><span>縁の濃さ</span><span>濃</span></div>
+      </div>
+    </div>
+
+    <div class="sect">
+      <h3>縁 の 見 立 て</h3>
+      <p style="font-size:13.5px;line-height:2;color:#DFD8CA;margin:0;">
+        ${kanshi(st.pa.day)}（${a.oa.name}）と ${kanshi(st.pb.day)}（${a.ob.name}）は、十二支において<b style="color:var(--gold);">${a.rel.t}</b>を結びます。
+        ${a.rel.d}<br>${a.ctxLine}${a.sango?'<br>'+a.sango:''}
+      </p>
+    </div>
+
+    <div class="sect cols2">
+      <div>
+        <h3>起 き や す い こ と</h3>
+        <ul class="pts">${a.rel.ph.map(s=>`<li>${s}</li>`).join('')}</ul>
+      </div>
+      <div>
+        <h3>気 の 流 れ</h3>
+        <ul class="pts">
+          <li>五行 — ${EL[STEM_EL[st.pa.day.s]]} と ${EL[STEM_EL[st.pb.day.s]]}</li>
+          <li>${a.er.d}</li>
+          <li>${yyTxt}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sect">
+      <h3>縁 を 鍛 え る 三 箇 条</h3>
+      <div class="kajiwa">
+        ${a.rel.fg.map((f,i)=>`<div class="k"><div class="n">${['一','二','三'][i]}</div>
+          <div class="t"><b>${f[0]}</b>${f[1]}</div></div>`).join('')}
+      </div>
+    </div>
+  </div></div>`;
+}
+
+/* =====================================================================
+   結果の書き出し
+   ===================================================================== */
+function oneText(st){
+  const o=oniOf(st.p.day.b), g=gogyoBalance(st.p), df=dayFortune(st.p.day.b,st.p.day.s,new Date());
+  const pil=['年柱 '+kanshi(st.p.year),'月柱 '+kanshi(st.p.month),'日柱 '+kanshi(st.p.day)];
+  if(st.p.hour) pil.push('時柱 '+kanshi(st.p.hour));
+  return ['【鬼道占術 — 鬼命鑑定】',
+    (st.name?st.name+'　':'')+st.date+(st.time?' '+st.time:''),
+    '本命鬼：'+o.name+'（'+o.yomi+'）／'+BRANCH[o.b]+'・'+EL[oniEl(o)]+'・'+(oniYY(o)?'陽':'陰'),
+    pil.join('　'),
+    '',o.nature,
+    '','［そなわる力］'+o.str.join('、'),
+    '［陥りやすい癖］'+o.sha.join('、'),
+    '［五行］'+EL.map((e,i)=>e+g.c[i]).join(' ')+'　強：'+g.strong.join('・')+(g.lack.length?'　欠：'+g.lack.join('・'):''),
+    '［守り］'+o.dir+'／'+o.cn+'／'+o.num+'／'+o.item,
+    '','［今日の気配］'+df.title+' '+df.score+'/100（日辰 '+df.kanshi+'）',
+    df.body,'開運の一手：'+df.act,
+    '','※娯楽としてお楽しみください。'].join('\n');
+}
+function pairText(st){
+  const a=affinity(st.pa,st.pb,st.ctx);
+  return ['【鬼道占術 — 縁の鍛冶】',
+    (st.nameA||'甲の人')+'：'+st.dateA+'　'+a.oa.name+'（'+kanshi(st.pa.day)+'）',
+    (st.nameB||'乙の人')+'：'+st.dateB+'　'+a.ob.name+'（'+kanshi(st.pb.day)+'）',
+    '','縁の型：'+a.rel.t+'　縁の濃さ '+a.score+'/100',
+    a.rel.d, a.ctxLine, a.sango||null,
+    '','［起きやすいこと］'+a.rel.ph.join('、'),
+    '［気の流れ］'+a.er.d,
+    '','［縁を鍛える三箇条］',
+    ...a.rel.fg.map((f,i)=>(i+1)+'. '+f[0]+' — '+f[1]),
+    '','※娯楽としてお楽しみください。'].filter(s=>s!==null).join('\n');
+}
+async function copyText(txt){
+  try{
+    if(navigator.clipboard&&window.isSecureContext){ await navigator.clipboard.writeText(txt); }
+    else{
+      const ta=document.createElement('textarea');
+      ta.value=txt; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    toast('鑑定結果を写しました');
+  }catch(e){ toast('コピーできませんでした'); }
+}
+let toastT=null;
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2200);
+}
+
+/* =====================================================================
+   記録（localStorage）
+   ===================================================================== */
+const KEY='kido.records.v1';
+let records=[];
+function loadRecords(){
+  try{ records=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ records=[]; }
+  if(!Array.isArray(records)) records=[];
+}
+function saveRecords(){
+  try{ localStorage.setItem(KEY,JSON.stringify(records.slice(0,100))); }
+  catch(e){ toast('この端末では記録を保存できません'); }
+}
+function renderRecords(){
+  const tb=$('recBody');
+  $('recCount').textContent=records.length+' 件';
+  if(!records.length){
+    tb.innerHTML='<tr><td colspan="4" class="empty">まだ記録がありません。鬼命鑑定の「記録に残す」から保存できます。</td></tr>';
+    return;
+  }
+  tb.innerHTML=records.map((r,i)=>{
+    const p=meishiki(...ymd(r.date), r.time||null), o=oniOf(p.day.b);
+    return `<tr>
+      <td><div class="cellflex">
+        <span class="mini-glyph" style="${glyphStyle(o)}" aria-hidden="true">${o.glyph}</span>
+        <span><span class="nm">${o.name}</span><br><span class="mini">${esc(r.name||'名なし')}</span></span>
+      </div></td>
+      <td class="tnum">${esc(r.date)}${r.time?'<br><span class="mini">'+esc(r.time)+'</span>':''}</td>
+      <td class="mini">${kanshi(p.year)}・${kanshi(p.month)}・<b style="color:var(--gold);">${kanshi(p.day)}</b></td>
+      <td style="text-align:right;white-space:nowrap;">
+        <button class="lnk" type="button" data-open="${i}">開く</button>
+        <button class="lnk" type="button" data-pair="${i}">縁を見る</button>
+        <button class="lnk del" type="button" data-del="${i}">削除</button>
+      </td></tr>`;
+  }).join('');
+}
+const ymd = s => s.split('-').map(Number);
+
+/* =====================================================================
+   画面の制御
+   ===================================================================== */
+const TABS=[['tab-meishiki','pane-meishiki'],['tab-en','pane-en'],['tab-rec','pane-rec']];
+function showTab(id){
+  TABS.forEach(([t,p])=>{
+    const on=t===id;
+    $(t).setAttribute('aria-selected',on?'true':'false');
+    $(p).hidden=!on;
+  });
+  if(id==='tab-rec') renderRecords();
+}
+TABS.forEach(([t])=>$(t).addEventListener('click',()=>showTab(t)));
+
+let lastOne=null, lastPair=null;
+
+function readDate(input,errEl){
+  const v=input.value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){ $(errEl).textContent='生年月日を入力してください。'; return null; }
+  const [y,m,d]=ymd(v);
+  const chk=new Date(y,m-1,d);
+  if(chk.getFullYear()!==y||chk.getMonth()!==m-1||chk.getDate()!==d||y<1900||y>2100){
+    $(errEl).textContent='その日付は暦にありません。ご確認ください。'; return null;
+  }
+  $(errEl).textContent='';
+  return {v,y,m,d};
+}
+
+$('formOne').addEventListener('submit',e=>{
+  e.preventDefault();
+  const d=readDate($('oneDate'),'oneErr'); if(!d) return;
+  const time=$('oneTime').value||'';
+  lastOne={name:$('oneName').value.trim(),date:d.v,time,p:meishiki(d.y,d.m,d.d,time||null)};
+  renderOne(lastOne);
+  $('oneResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+$('oneSave').addEventListener('click',()=>{
+  if(!lastOne){ toast('先に命式を立ててください'); return; }
+  const key=r=>r.date+'|'+(r.time||'')+'|'+(r.name||'');
+  records=records.filter(r=>key(r)!==key(lastOne));
+  records.unshift({name:lastOne.name,date:lastOne.date,time:lastOne.time,at:Date.now()});
+  saveRecords(); renderRecords(); toast('記録に残しました');
+});
+$('oneCopy').addEventListener('click',()=>{
+  if(!lastOne){ toast('先に命式を立ててください'); return; }
+  copyText(oneText(lastOne));
+});
+
+$('formPair').addEventListener('submit',e=>{
+  e.preventDefault();
+  const a=readDate($('pA-date'),'pairErr'); if(!a) return;
+  const b=readDate($('pB-date'),'pairErr'); if(!b) return;
+  lastPair={
+    nameA:$('pA-name').value.trim(), dateA:a.v, pa:meishiki(a.y,a.m,a.d,null),
+    nameB:$('pB-name').value.trim(), dateB:b.v, pb:meishiki(b.y,b.m,b.d,null),
+    ctx:$('pRel').value
+  };
+  renderPair(lastPair);
+  $('pairResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+$('pairSwap').addEventListener('click',()=>{
+  const n=$('pA-name').value, d=$('pA-date').value;
+  $('pA-name').value=$('pB-name').value; $('pA-date').value=$('pB-date').value;
+  $('pB-name').value=n; $('pB-date').value=d;
+  if($('pA-date').value&&$('pB-date').value) $('formPair').requestSubmit();
+});
+$('pairCopy').addEventListener('click',()=>{
+  if(!lastPair){ toast('先に縁を鍛えてください'); return; }
+  copyText(pairText(lastPair));
+});
+
+$('recBody').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.open!==undefined){
+    const r=records[+b.dataset.open];
+    $('oneName').value=r.name||''; $('oneDate').value=r.date; $('oneTime').value=r.time||'';
+    showTab('tab-meishiki'); $('formOne').requestSubmit();
+  }else if(b.dataset.pair!==undefined){
+    const r=records[+b.dataset.pair];
+    if(!$('pA-date').value){ $('pA-name').value=r.name||''; $('pA-date').value=r.date; }
+    else { $('pB-name').value=r.name||''; $('pB-date').value=r.date; }
+    showTab('tab-en');
+    if($('pA-date').value&&$('pB-date').value) $('formPair').requestSubmit();
+    else toast('もう一人の生年月日を入れてください');
+  }else if(b.dataset.del!==undefined){
+    records.splice(+b.dataset.del,1); saveRecords(); renderRecords(); toast('記録を削除しました');
+  }
+});
+$('recClear').addEventListener('click',()=>{
+  if(!records.length) return;
+  if(confirm('保存された鑑定の記録をすべて削除します。よろしいですか？')){
+    records=[]; saveRecords(); renderRecords(); toast('記録をすべて削除しました');
+  }
+});
+
+/* 起動 */
+(function init(){
+  const now=new Date();
+  const k=dayKanshiOf(now);
+  $('todayKanshi').textContent=kanshi(k);
+  $('todayDate').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+  loadRecords(); renderRecords();
+})();
+</script>
+</body>
+</html>
+
